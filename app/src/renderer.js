@@ -1,121 +1,123 @@
-// Main Canvas Composition Pipeline for Neon Panel.
-// Assembles panels, photos, color grading, vector decorations, and typography.
+// Main Canvas Composition Pipeline for Neon Panel v2.
+// Assembles: gutter base, panel photos with clip paths, color grading,
+// panel keylines, outer frame, grain, vignette, halftone, typography.
+// Never draws decorations (sun, palms) over photo subjects.
 
 import { computePanelPixelRects } from './layouts.js';
-import { applyColorGrade, COLOR_PRESETS } from './colorGrades.js';
+import { applyColorGrade, getColorPreset } from './colorGrades.js';
 import {
-  drawSunsetSun,
-  drawPalmSilhouettes,
-  drawPerspectiveGrid,
+  drawPanelGutters,
+  drawPanelKeylines,
+  drawOuterFrame,
   drawFilmGrain,
   drawVignette,
-  drawLetterboxBars,
-  drawPanelBorders,
-  drawOuterFrame,
+  drawHalftone,
 } from './decorations.js';
 import { drawCoverTypography } from './typography.js';
 
 /**
- * Main function to render cover art onto a canvas according to state.
+ * Main render function: draws complete cover art onto a canvas.
  */
 export function renderCoverArt(canvas, state, options = {}) {
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
 
-  // 1. Dark base background
-  const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-  bgGrad.addColorStop(0, '#1c0c2e');
-  bgGrad.addColorStop(0.5, '#10061c');
-  bgGrad.addColorStop(1, '#05020a');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, 0, w, h);
+  const layoutId = state.layout || 'key-art';
+  const gutterPx = Math.max(6, Math.round(Math.min(w, h) * 0.016));
+  const panels = computePanelPixelRects(layoutId, w, h, gutterPx);
 
-  // 2. Compute panel layout rectangles
-  const layoutId = state.layout || 'hero-strip';
-  const borderWidth = Math.max(6, Math.round(Math.min(w, h) * 0.01));
-  const panels = computePanelPixelRects(layoutId, w, h, borderWidth);
+  // 1. Gutter base layer: warm off-white fills the whole canvas
+  if (panels.length > 1) {
+    ctx.fillStyle = '#f0ece4';
+    ctx.fillRect(0, 0, w, h);
+  } else {
+    // Full bleed: dark base
+    const bg = ctx.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, '#1c0c2e');
+    bg.addColorStop(1, '#05020a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, w, h);
+  }
 
-  // 3. Render each panel's photo & color grade
+  // 2. Render each panel: clip, draw photo, color grade
   const panelPhotos = state.panelPhotos || [];
   const globalPhoto = state.globalPhoto || null;
-  const colorPreset = state.colorPreset || 'sunset';
-  const colorIntensity = state.colorIntensity ?? 0.85;
+  const colorPreset = state.colorPreset || 'golden-hour';
+  const grade = getColorPreset(colorPreset);
+  const colorIntensity = state.colorIntensity ?? 0.75;
 
   panels.forEach((panel, idx) => {
     const photoData = panelPhotos[idx] || (globalPhoto ? { image: globalPhoto, panX: 0, panY: 0, zoom: 1 } : null);
     renderPanel(ctx, panel, photoData, colorPreset, colorIntensity);
   });
 
-  // 4. Panel dividing comic borders
-  drawPanelBorders(ctx, panels, w, h, borderWidth);
+  // 3. Panel keylines (thin black lines on panel edges)
+  drawPanelKeylines(ctx, panels, w, h, gutterPx);
 
-  // 5. Vector decorations (customizable via state.decorations)
-  const dec = state.decorations || {
-    sun: true,
-    palms: true,
-    grid: true,
-    grain: true,
-    vignette: true,
-    letterbox: false,
-    frame: true,
-  };
-
-  if (dec.grid) {
-    drawPerspectiveGrid(ctx, w, h, 0.28);
-  }
-
-  if (dec.sun) {
-    // Elegant sun disk in upper sky of primary panel
-    const sunRadius = Math.min(w, h) * 0.12;
-    const sunX = layoutId === 'classic-6' ? w * 0.25 : w * 0.28;
-    const sunY = h * 0.16;
-    drawSunsetSun(ctx, sunX, sunY, sunRadius, 0.85);
-  }
-
-  if (dec.palms) {
-    drawPalmSilhouettes(ctx, w, h, 0.95);
-  }
-
-  if (dec.vignette) {
-    drawVignette(ctx, w, h, 0.52);
-  }
-
-  if (dec.letterbox) {
-    drawLetterboxBars(ctx, w, h, 0.05);
-  }
-
-  if (dec.frame) {
-    const frameW = Math.max(8, Math.round(Math.min(w, h) * 0.016));
-    drawOuterFrame(ctx, w, h, frameW);
-  }
-
-  if (dec.grain) {
-    drawFilmGrain(ctx, w, h, 0.1);
-  }
-
-  // 6. Typography overlay
-  drawCoverTypography(ctx, state.typography || {}, w, h);
-
-  // 7. Interactive selection highlight for active panel in editor only (never in export or shot=cover)
+  // Keep the active-panel guide on the photos; the title band covers it below.
   if (options.highlightPanelIndex != null && panels[options.highlightPanelIndex]) {
     const hp = panels[options.highlightPanelIndex];
     ctx.save();
-    ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([8, 6]);
-    ctx.strokeRect(hp.x + 2, hp.y + 2, hp.width - 4, hp.height - 4);
+    ctx.strokeStyle = '#66e4eb';
+    ctx.lineWidth = Math.max(2, Math.round(Math.min(w, h) * 0.003));
+    ctx.setLineDash([Math.max(7, w * 0.006), Math.max(4, w * 0.004)]);
+    if (hp.clipPath && hp.clipPath.length > 2) {
+      ctx.beginPath();
+      ctx.moveTo(hp.clipPath[0][0], hp.clipPath[0][1]);
+      for (let i = 1; i < hp.clipPath.length; i++) {
+        ctx.lineTo(hp.clipPath[i][0], hp.clipPath[i][1]);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      ctx.strokeRect(hp.x + 2, hp.y + 2, hp.width - 4, hp.height - 4);
+    }
     ctx.restore();
   }
+
+  // 4. Outer frame
+  const frameW = Math.max(4, Math.round(Math.min(w, h) * 0.008));
+  drawOuterFrame(ctx, w, h, frameW);
+
+  // 5. Global vignette
+  if (state.decorations?.vignette !== false) {
+    drawVignette(ctx, w, h, 0.38, grade.poster.vignetteColor);
+  }
+
+  // 6. Film grain
+  if (state.decorations?.grain !== false) {
+    drawFilmGrain(ctx, w, h, 0.08);
+  }
+
+  // 7. Halftone print texture
+  if (state.decorations?.halftone !== false) {
+    drawHalftone(ctx, w, h, 0.25);
+  }
+
+  // 8. Typography (title, subtitle, quote, badge, footer, panel labels)
+  drawCoverTypography(ctx, { ...(state.typography || {}), colorPreset }, w, h);
+
 }
 
 /**
- * Draws an individual panel: photo with pan & zoom, or placeholder, then color grade.
+ * Draws an individual panel: clips to its polygon, draws photo with pan & zoom,
+ * then applies color grade.
  */
 function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
   ctx.save();
+
+  // Clip to panel polygon
   ctx.beginPath();
-  ctx.rect(panel.x, panel.y, panel.width, panel.height);
+  if (panel.clipPath && panel.clipPath.length > 2) {
+    ctx.moveTo(panel.clipPath[0][0], panel.clipPath[0][1]);
+    for (let i = 1; i < panel.clipPath.length; i++) {
+      ctx.lineTo(panel.clipPath[i][0], panel.clipPath[i][1]);
+    }
+    ctx.closePath();
+  } else {
+    ctx.rect(panel.x, panel.y, panel.width, panel.height);
+  }
   ctx.clip();
 
   if (photoData && photoData.image) {
@@ -137,7 +139,8 @@ function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
     const destX = panel.x + offsetX;
     const destY = panel.y + offsetY;
 
-    const preset = COLOR_PRESETS.find((p) => p.id === colorPreset) || COLOR_PRESETS[0];
+    // Apply CSS filter for the color preset
+    const preset = getColorPreset(colorPreset);
     ctx.filter = preset.cssFilter || 'none';
     ctx.drawImage(img, destX, destY, drawW, drawH);
     ctx.filter = 'none';
@@ -149,18 +152,14 @@ function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
     ctx.fillStyle = phGrad;
     ctx.fillRect(panel.x, panel.y, panel.width, panel.height);
 
-    ctx.strokeStyle = 'rgba(255, 42, 133, 0.25)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(panel.x + 8, panel.y + 8, panel.width - 16, panel.height - 16);
-
-    ctx.font = '700 16px sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '700 14px sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(`PANEL ${panel.id + 1}`, panel.x + panel.width * 0.5, panel.y + panel.height * 0.5);
   }
 
-  // Apply color grade tint over this panel
+  // Apply color grade tint
   applyColorGrade(ctx, colorPreset, colorIntensity, panel.width, panel.height, panel.x, panel.y);
 
   ctx.restore();

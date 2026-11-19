@@ -1,6 +1,9 @@
 Copyright 2019 The Bebas Neue Project Authors (https://github.com/dharmatype/Bebas-Neue)
 Copyright 2020 The Anton Project Authors (https://github.com/googlefonts/AntonFont.git)
 Copyright 2017 The Archivo Black Project Authors (https://github.com/Omnibus-Type/ArchivoBlack)
+Copyright 2011 The Pacifico Project Authors (https://github.com/googlefonts/Pacifico)
+Copyright 2016 The Oswald Project Authors (https://github.com/googlefonts/OswaldFont)
+Copyright 2010 Impallari Type (www.impallari.com) — Kaushan Script
 
 Copyright (c) <dates>, <Copyright Holder> (<URL|email>),
 with Reserved Font Name <Reserved Font Name>.

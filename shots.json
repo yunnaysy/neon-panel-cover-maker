@@ -1,20 +1,26 @@
 [
   {
     "name": "1-cover.jpg",
-    "query": "?shot=cover&photo=both&layout=classic-6&preset=sunset&theme=vice-sunset&caption=VICE%20LIGHTS&subtitle=OCEAN%20DRIVE%20CHRONICLES&tagline=FALL%202026%20%E2%80%A2%20AN%20ORIGINAL%20TALE&aspect=1:1&w=1080&h=1080",
-    "w": 1080,
-    "h": 1080
-  },
-  {
-    "name": "2-editor.jpg",
-    "query": "?shot=editor&photo=both&layout=classic-6&preset=sunset&theme=vice-sunset&caption=VICE%20LIGHTS&subtitle=OCEAN%20DRIVE%20CHRONICLES&tagline=FALL%202026%20%E2%80%A2%20AN%20ORIGINAL%20TALE&w=1280&h=720",
+    "query": "?shot=cover&photo=cast&layout=key-art&aspect=16%3A9&preset=golden-hour&intensity=0.78&caption=VICE%20LIGHTS&subtitle=Ocean%20Drive&quote=%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20%20%E2%80%9CAN%20INSTANT%20CLASSIC%E2%80%9D&badge=ORIGINAL&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
     "w": 1280,
     "h": 720
   },
   {
+    "name": "2-editor.jpg",
+    "query": "?shot=editor&photo=cast&layout=key-art&aspect=16%3A9&preset=golden-hour&caption=VICE%20LIGHTS&subtitle=Ocean%20Drive&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
+    "w": 1280,
+    "h": 800
+  },
+  {
     "name": "3-cover.jpg",
-    "query": "?shot=cover&photo=boulevard&layout=hero-strip&preset=neon&theme=miami-cyan&caption=SUNSET%20HEIST&subtitle=VICE%20CITY%20UNDERGROUND&tagline=FALL%202026%20%E2%80%A2%20DIRECTORS%20CUT&aspect=4:5&w=1024&h=1280",
+    "query": "?shot=cover&photo=cast&layout=hero-four&aspect=4%3A5&preset=vice-dusk&intensity=0.82&caption=SUNSET%20RUN&subtitle=Last%20Light%20Out&quote=%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20%20%E2%80%9CA%20COASTAL%20CLASSIC%E2%80%9D&badge=VOL.%201&tagline=ONE%20HIGHWAY%20%C2%B7%20NO%20SECOND%20CHANCES",
     "w": 1024,
     "h": 1280
+  },
+  {
+    "name": "4-cover.jpg",
+    "query": "?shot=cover&photo=cast&layout=mosaic-six&panels=0%2C1%2C5%2C3%2C4%2C6&aspect=1%3A1&preset=neon-night&intensity=0.76&caption=NEON%20TIDE&subtitle=Ride%20the%20Blue%20Hour&quote=%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85%20%20%E2%80%9CAFTER%20DARK%2C%20ALWAYS%E2%80%9D&badge=VOL.%2002&tagline=NO%20WAKE%20%C2%B7%20NO%20WITNESSES%20%C2%B7%20NEON%20TIDE",
+    "w": 1024,
+    "h": 1024
   }
 ]

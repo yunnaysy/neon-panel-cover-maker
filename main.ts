@@ -1,10 +1,7 @@
-// Neon Panel Cover Maker (make.fun bounty gta6-cover-art-01):
-// An offline, browser-based multi-panel GTA 6 style cover art creator.
-// Features multi-panel comic layouts (hero-strip, classic-6, grid-4, triad-3, split-2, solo-1),
-// interactive per-panel pan/zoom/crop, Vice City color grading, original vector decorations
-// (synthwave sun, silhouette palms, perspective grid, vignette, film grain, comic borders),
-// vendored OFL poster typography (Bebas Neue, Anton, Archivo Black), and multi-aspect PNG exports
-// (1080x1080 square, 1080x1350 portrait, 1920x1080 banner).
+// Neon Panel v2 — an offline multi-panel cover-art studio for make.fun's
+// gta6-cover-art-01 bounty. It combines five adaptive poster layouts, local
+// photo cropping, cinematic color grades, original title-band lettering,
+// bundled SIL OFL fonts, and square, portrait and landscape PNG exports.
 //
 // Serve locally with `node serve.ts`, then open http://localhost:8080.
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:

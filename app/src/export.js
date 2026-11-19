@@ -1,15 +1,15 @@
-// Export utilities for high-resolution PNG cover art downloads.
+// Export utilities for Neon Panel v2 — high-resolution PNG cover downloads.
 
 import { renderCoverArt } from './renderer.js';
 
 export const EXPORT_PRESETS = [
-  { id: 'square', name: 'Square Feed', width: 1080, height: 1080, aspectLabel: '1:1' },
-  { id: 'portrait', name: 'Portrait Post', width: 1080, height: 1350, aspectLabel: '4:5' },
   { id: 'landscape', name: 'Landscape Banner', width: 1920, height: 1080, aspectLabel: '16:9' },
+  { id: 'portrait', name: 'Portrait Post', width: 1080, height: 1350, aspectLabel: '4:5' },
+  { id: 'square', name: 'Square Feed', width: 1080, height: 1080, aspectLabel: '1:1' },
 ];
 
 /**
- * Renders the state onto an offscreen canvas at target resolution and triggers a browser PNG download.
+ * Renders state onto an offscreen canvas at target resolution and triggers PNG download.
  */
 export function exportCoverPng(state, targetWidth, targetHeight, filename = 'neon-panel-cover.png') {
   return new Promise((resolve, reject) => {
@@ -18,10 +18,18 @@ export function exportCoverPng(state, targetWidth, targetHeight, filename = 'neo
       offscreen.width = targetWidth;
       offscreen.height = targetHeight;
 
-      // Render clean cover with no interactive highlights
+      // Temporarily override canvas dimensions in state
+      const origW = state.canvasWidth;
+      const origH = state.canvasHeight;
+      state.canvasWidth = targetWidth;
+      state.canvasHeight = targetHeight;
+
       renderCoverArt(offscreen, state, { highlightPanelIndex: null });
 
-      offscreen.toBlob((blob) => {
+      state.canvasWidth = origW;
+      state.canvasHeight = origH;
+
+      offscreen.toBlob(blob => {
         if (!blob) {
           reject(new Error('Canvas toBlob failed'));
           return;
@@ -43,12 +51,22 @@ export function exportCoverPng(state, targetWidth, targetHeight, filename = 'neo
 }
 
 /**
- * Generates an offscreen canvas rendered at target dimensions.
+ * Generates an offscreen canvas rendered at target dimensions (no download).
  */
 export function renderToOffscreenCanvas(state, width, height) {
   const offscreen = document.createElement('canvas');
   offscreen.width = width;
   offscreen.height = height;
+
+  const origW = state.canvasWidth;
+  const origH = state.canvasHeight;
+  state.canvasWidth = width;
+  state.canvasHeight = height;
+
   renderCoverArt(offscreen, state, { highlightPanelIndex: null });
+
+  state.canvasWidth = origW;
+  state.canvasHeight = origH;
+
   return offscreen;
 }

@@ -1,104 +1,232 @@
-// Layout definitions and panel geometry calculators for Neon Panel cover art.
+// Poster-collage layout presets for Neon Panel v2.
+// Each layout adapts to 1920x1080, 1080x1350 and 1080x1080 canvas sizes.
+// Panels use a thick off-white gutter with thin black keyline. Some panels
+// have angled/diagonal cuts for a classic open-world crime game poster feel.
 
-/**
- * Available layout types with metadata.
- */
 export const LAYOUT_PRESETS = [
-  { id: 'hero-strip', name: 'Hero + Strip', count: 4, icon: '◫' },
-  { id: 'classic-6', name: 'Vice 6-Panel', count: 6, icon: '▦' },
-  { id: 'grid-4', name: 'Quad Comic', count: 4, icon: '⊞' },
-  { id: 'triad-3', name: 'Triad Hero', count: 3, icon: '⊟' },
-  { id: 'split-2', name: 'Duo Split', count: 2, icon: '◫' },
-  { id: 'solo-1', name: 'Full Bleed', count: 1, icon: '▢' },
+  { id: 'key-art',       name: 'Key Art',        count: 6, icon: '◫' },
+  { id: 'hero-four',     name: 'Hero + Four',    count: 5, icon: '▦' },
+  { id: 'mosaic-six',    name: 'Mosaic Six',     count: 6, icon: '⊞' },
+  { id: 'split-diagonal',name: 'Split Diagonal', count: 4, icon: '◩' },
+  { id: 'full-bleed',    name: 'Full Bleed',     count: 1, icon: '▢' },
 ];
 
 /**
- * Calculates normalized rectangle coordinates [x, y, width, height] (0.0 to 1.0)
- * for each panel in the chosen layout.
+ * Returns normalized panel clip-path polygons for a given layout and canvas size.
+ * Each panel is { id, points: [[x,y],...], bounds: {x,y,w,h} }
+ * Points are normalized 0-1 relative to canvas.
  */
-export function getNormalizedPanelRects(layoutId) {
+export function getLayoutPanels(layoutId, canvasW, canvasH) {
+  const aspect = canvasW / canvasH;
+  const isLandscape = aspect > 1.5;   // 16:9
+  const isPortrait  = aspect < 0.85;   // 4:5
+  // else square 1:1
+
   switch (layoutId) {
-    case 'hero-strip':
-      // Large hero on left (58% width), 3 stacked panels on right (42% width)
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 0.58, h: 1.0 },
-        { id: 1, x: 0.58, y: 0.0, w: 0.42, h: 0.333 },
-        { id: 2, x: 0.58, y: 0.333, w: 0.42, h: 0.334 },
-        { id: 3, x: 0.58, y: 0.667, w: 0.42, h: 0.333 },
-      ];
-
-    case 'classic-6':
-      // Authentic GTA poster style: 2 panels top, 1 hero panel mid, 3 panels bottom
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 0.50, h: 0.34 },
-        { id: 1, x: 0.50, y: 0.0, w: 0.50, h: 0.34 },
-        { id: 2, x: 0.0, y: 0.34, w: 0.62, h: 0.34 },
-        { id: 3, x: 0.62, y: 0.34, w: 0.38, h: 0.34 },
-        { id: 4, x: 0.0, y: 0.68, w: 0.34, h: 0.32 },
-        { id: 5, x: 0.34, y: 0.68, w: 0.66, h: 0.32 },
-      ];
-
-    case 'grid-4':
-      // 2x2 grid
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 0.50, h: 0.50 },
-        { id: 1, x: 0.50, y: 0.0, w: 0.50, h: 0.50 },
-        { id: 2, x: 0.0, y: 0.50, w: 0.50, h: 0.50 },
-        { id: 3, x: 0.50, y: 0.50, w: 0.50, h: 0.50 },
-      ];
-
-    case 'triad-3':
-      // Top hero (56% height), two split panels at bottom
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 1.0, h: 0.56 },
-        { id: 1, x: 0.0, y: 0.56, w: 0.50, h: 0.44 },
-        { id: 2, x: 0.50, y: 0.56, w: 0.50, h: 0.44 },
-      ];
-
-    case 'split-2':
-      // 2 horizontal split or 2 vertical split depending on aspect
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 0.50, h: 1.0 },
-        { id: 1, x: 0.50, y: 0.0, w: 0.50, h: 1.0 },
-      ];
-
-    case 'solo-1':
+    case 'key-art':
+      return keyArtLayout(isLandscape, isPortrait);
+    case 'hero-four':
+      return heroFourLayout(isLandscape, isPortrait);
+    case 'mosaic-six':
+      return mosaicSixLayout(isLandscape, isPortrait);
+    case 'split-diagonal':
+      return splitDiagonalLayout(isLandscape, isPortrait);
+    case 'full-bleed':
     default:
-      return [
-        { id: 0, x: 0.0, y: 0.0, w: 1.0, h: 1.0 },
-      ];
+      return [{ id: 0, points: [[0,0],[1,0],[1,1],[0,1]], bounds: {x:0,y:0,w:1,h:1} }];
   }
 }
 
+function rectPanel(id, x, y, w, h) {
+  return {
+    id,
+    points: [[x,y],[x+w,y],[x+w,y+h],[x,y+h]],
+    bounds: {x,y,w,h}
+  };
+}
+
+function polyPanel(id, pts) {
+  let minX=1,minY=1,maxX=0,maxY=0;
+  for (const [px,py] of pts) {
+    if (px<minX) minX=px; if (py<minY) minY=py;
+    if (px>maxX) maxX=px; if (py>maxY) maxY=py;
+  }
+  return { id, points: pts, bounds: {x:minX,y:minY,w:maxX-minX,h:maxY-minY} };
+}
+
+// Key Art: big hero left, 4-5 angled panels right
+function keyArtLayout(isLand, isPort) {
+  if (isPort) {
+    // Portrait: hero top (60%), 5 panels bottom in 2 rows
+    const h0 = 0.42;
+    const sk = 0.04; // skew for diagonal
+    return [
+      polyPanel(0, [[0,0],[1,0],[1,h0],[0,h0+sk]]),         // hero top
+      polyPanel(1, [[0,h0+sk],[0.5,h0],[0.5,h0+0.20],[0,h0+0.20+sk]]),  // mid-left
+      polyPanel(2, [[0.5,h0],[1,h0],[1,h0+0.20],[0.5,h0+0.20]]),         // mid-right
+      polyPanel(3, [[0,h0+0.20+sk],[0.33,h0+0.20],[0.33,1],[0,1]]),       // bot-left
+      polyPanel(4, [[0.33,h0+0.20],[0.66,h0+0.20],[0.66,1],[0.33,1]]),    // bot-mid
+      polyPanel(5, [[0.66,h0+0.20],[1,h0+0.20],[1,1],[0.66,1]]),          // bot-right
+    ];
+  }
+  if (isLand) {
+    // Landscape: hero left (45%), 5 panels right with diagonal cuts
+    const heroW = 0.44;
+    const sk = 0.05;
+    return [
+      polyPanel(0, [[0,0],[heroW+sk,0],[heroW,1],[0,1]]),           // hero left (angled right edge)
+      polyPanel(1, [[heroW+sk,0],[0.72,0],[0.72,0.50],[heroW+sk*0.5,0.50]]),  // top-mid
+      polyPanel(2, [[0.72,0],[1,0],[1,0.50],[0.72,0.50]]),                     // top-right
+      polyPanel(3, [[heroW,1],[heroW+sk*0.5,0.50],[0.60,0.50],[0.60,1]]),      // bot-left
+      polyPanel(4, [[0.60,0.50],[0.80,0.50],[0.80,1],[0.60,1]]),               // bot-mid
+      polyPanel(5, [[0.80,0.50],[1,0.50],[1,1],[0.80,1]]),                     // bot-right
+    ];
+  }
+  // Square
+  const heroW = 0.48;
+  const sk = 0.04;
+  return [
+    polyPanel(0, [[0,0],[heroW+sk,0],[heroW,1],[0,1]]),
+    polyPanel(1, [[heroW+sk,0],[0.74,0],[0.74,0.50],[heroW+sk*0.5,0.50]]),
+    polyPanel(2, [[0.74,0],[1,0],[1,0.50],[0.74,0.50]]),
+    polyPanel(3, [[heroW,1],[heroW+sk*0.5,0.50],[0.65,0.50],[0.65,1]]),
+    polyPanel(4, [[0.65,0.50],[0.82,0.50],[0.82,1],[0.65,1]]),
+    polyPanel(5, [[0.82,0.50],[1,0.50],[1,1],[0.82,1]]),
+  ];
+}
+
+// Hero + Four: one big panel + 4 smaller
+function heroFourLayout(isLand, isPort) {
+  if (isPort) {
+    const h0 = 0.48;
+    return [
+      rectPanel(0, 0, 0, 1, h0),
+      rectPanel(1, 0, h0, 0.50, 0.26),
+      rectPanel(2, 0.50, h0, 0.50, 0.26),
+      rectPanel(3, 0, h0+0.26, 0.50, 1-h0-0.26),
+      rectPanel(4, 0.50, h0+0.26, 0.50, 1-h0-0.26),
+    ];
+  }
+  if (isLand) {
+    return [
+      rectPanel(0, 0, 0, 0.55, 1),
+      rectPanel(1, 0.55, 0, 0.225, 0.50),
+      rectPanel(2, 0.775, 0, 0.225, 0.50),
+      rectPanel(3, 0.55, 0.50, 0.225, 0.50),
+      rectPanel(4, 0.775, 0.50, 0.225, 0.50),
+    ];
+  }
+  // landscape fallback with 5 panels
+  return [
+    rectPanel(0, 0, 0, 0.55, 1),
+    rectPanel(1, 0.55, 0, 0.225, 0.50),
+    rectPanel(2, 0.775, 0, 0.225, 0.50),
+    rectPanel(3, 0.55, 0.50, 0.225, 0.50),
+    rectPanel(4, 0.775, 0.50, 0.225, 0.50),
+  ];
+}
+
+// Mosaic Six: mixed-size grid with 6 panels
+function mosaicSixLayout(isLand, isPort) {
+  if (isPort) {
+    return [
+      rectPanel(0, 0, 0, 0.60, 0.35),
+      rectPanel(1, 0.60, 0, 0.40, 0.35),
+      rectPanel(2, 0, 0.35, 0.40, 0.30),
+      rectPanel(3, 0.40, 0.35, 0.60, 0.30),
+      rectPanel(4, 0, 0.65, 0.50, 0.35),
+      rectPanel(5, 0.50, 0.65, 0.50, 0.35),
+    ];
+  }
+  if (isLand) {
+    return [
+      rectPanel(0, 0, 0, 0.42, 0.55),
+      rectPanel(1, 0.42, 0, 0.30, 0.55),
+      rectPanel(2, 0.72, 0, 0.28, 0.55),
+      rectPanel(3, 0, 0.55, 0.33, 0.45),
+      rectPanel(4, 0.33, 0.55, 0.38, 0.45),
+      rectPanel(5, 0.71, 0.55, 0.29, 0.45),
+    ];
+  }
+  // Square
+  return [
+    rectPanel(0, 0, 0, 0.55, 0.50),
+    rectPanel(1, 0.55, 0, 0.45, 0.50),
+    rectPanel(2, 0, 0.50, 0.33, 0.50),
+    rectPanel(3, 0.33, 0.50, 0.33, 0.50),
+    rectPanel(4, 0.66, 0.50, 0.34, 0.25),
+    rectPanel(5, 0.66, 0.75, 0.34, 0.25),
+  ];
+}
+
+// Split Diagonal: 4 panels with strong diagonal cuts
+function splitDiagonalLayout(isLand, isPort) {
+  const sk = 0.08;
+  if (isPort) {
+    return [
+      polyPanel(0, [[0,0],[1,0],[1,0.28],[0,0.28+sk]]),
+      polyPanel(1, [[0,0.28+sk],[1,0.28],[1,0.52],[0,0.52+sk]]),
+      polyPanel(2, [[0,0.52+sk],[1,0.52],[1,0.76],[0,0.76+sk]]),
+      polyPanel(3, [[0,0.76+sk],[1,0.76],[1,1],[0,1]]),
+    ];
+  }
+  if (isLand) {
+    return [
+      polyPanel(0, [[0,0],[0.28+sk,0],[0.28,1],[0,1]]),
+      polyPanel(1, [[0.28+sk,0],[0.52+sk,0],[0.52,1],[0.28,1]]),
+      polyPanel(2, [[0.52+sk,0],[0.76+sk,0],[0.76,1],[0.52,1]]),
+      polyPanel(3, [[0.76+sk,0],[1,0],[1,1],[0.76,1]]),
+    ];
+  }
+  // Square
+  return [
+    polyPanel(0, [[0,0],[0.28+sk,0],[0.28,1],[0,1]]),
+    polyPanel(1, [[0.28+sk,0],[0.53+sk,0],[0.53,1],[0.28,1]]),
+    polyPanel(2, [[0.53+sk,0],[0.78+sk,0],[0.78,1],[0.53,1]]),
+    polyPanel(3, [[0.78+sk,0],[1,0],[1,1],[0.78,1]]),
+  ];
+}
+
 /**
- * Computes pixel boundaries for each panel, inset by a border gap.
+ * Computes pixel-space panel clip polygons and axis-aligned bounding rects.
+ * Returns array of { id, clipPath: [[px,py],...], x, y, width, height }.
+ * Panels are inset by half the gutter on each shared edge.
  */
-export function computePanelPixelRects(layoutId, canvasWidth, canvasHeight, borderGap = 8) {
-  const normRects = getNormalizedPanelRects(layoutId);
-  const halfGap = borderGap / 2;
+export function computePanelPixelRects(layoutId, canvasW, canvasH, gutterPx = 10) {
+  const panels = getLayoutPanels(layoutId, canvasW, canvasH);
+  const halfG = gutterPx / 2;
 
-  return normRects.map((rect) => {
-    const rawX = rect.x * canvasWidth;
-    const rawY = rect.y * canvasHeight;
-    const rawW = rect.w * canvasWidth;
-    const rawH = rect.h * canvasHeight;
+  return panels.filter(p => p.bounds.w > 0.01 && p.bounds.h > 0.01).map(p => {
+    // Convert normalized points to pixel
+    const clipPath = p.points.map(([nx,ny]) => [nx * canvasW, ny * canvasH]);
 
-    // Apply gap insets so borders align cleanly
-    const insetX = rect.x === 0 ? rawX : rawX + halfGap;
-    const insetY = rect.y === 0 ? rawY : rawY + halfGap;
-    const insetW = (rect.x === 0 && rect.w === 1.0)
-      ? rawW
-      : (rect.x === 0 || rect.x + rect.w >= 0.999) ? rawW - halfGap : rawW - borderGap;
-    const insetH = (rect.y === 0 && rect.h === 1.0)
-      ? rawH
-      : (rect.y === 0 || rect.y + rect.h >= 0.999) ? rawH - halfGap : rawH - borderGap;
+    // Bounds in pixels
+    const bx = p.bounds.x * canvasW;
+    const by = p.bounds.y * canvasH;
+    const bw = p.bounds.w * canvasW;
+    const bh = p.bounds.h * canvasH;
+
+    // Inset clip path by half-gutter toward the center of the bounds
+    const cx = bx + bw/2;
+    const cy = by + bh/2;
+    const insetClip = clipPath.map(([px,py]) => {
+      const dx = px - cx;
+      const dy = py - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const shrink = halfG;
+      return [
+        px - (dx/dist) * shrink,
+        py - (dy/dist) * shrink
+      ];
+    });
 
     return {
-      id: rect.id,
-      x: Math.round(insetX),
-      y: Math.round(insetY),
-      width: Math.max(10, Math.round(insetW)),
-      height: Math.max(10, Math.round(insetH)),
+      id: p.id,
+      clipPath: insetClip,
+      x: Math.round(bx + halfG),
+      y: Math.round(by + halfG),
+      width: Math.max(10, Math.round(bw - gutterPx)),
+      height: Math.max(10, Math.round(bh - gutterPx)),
     };
   });
 }
