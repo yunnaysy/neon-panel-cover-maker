@@ -1,5 +1,20 @@
 [
-  { "name": "1-cover.jpg", "query": "?shot=cover&photo=pier&caption=Sunset%20Heist", "w": 1080, "h": 1080 },
-  { "name": "2-editor.jpg", "query": "?shot=editor&photo=boulevard&caption=Boulevard%20Queen", "w": 1280, "h": 720 },
-  { "name": "3-cover.jpg", "query": "?shot=cover&photo=boulevard&caption=Boulevard%20Queen", "w": 1080, "h": 1080 }
+  {
+    "name": "1-cover.jpg",
+    "query": "?shot=cover&photo=both&layout=classic-6&preset=sunset&theme=vice-sunset&caption=VICE%20LIGHTS&subtitle=OCEAN%20DRIVE%20CHRONICLES&tagline=FALL%202026%20%E2%80%A2%20AN%20ORIGINAL%20TALE&aspect=1:1&w=1080&h=1080",
+    "w": 1080,
+    "h": 1080
+  },
+  {
+    "name": "2-editor.jpg",
+    "query": "?shot=editor&photo=both&layout=classic-6&preset=sunset&theme=vice-sunset&caption=VICE%20LIGHTS&subtitle=OCEAN%20DRIVE%20CHRONICLES&tagline=FALL%202026%20%E2%80%A2%20AN%20ORIGINAL%20TALE&w=1280&h=720",
+    "w": 1280,
+    "h": 720
+  },
+  {
+    "name": "3-cover.jpg",
+    "query": "?shot=cover&photo=boulevard&layout=hero-strip&preset=neon&theme=miami-cyan&caption=SUNSET%20HEIST&subtitle=VICE%20CITY%20UNDERGROUND&tagline=FALL%202026%20%E2%80%A2%20DIRECTORS%20CUT&aspect=4:5&w=1024&h=1280",
+    "w": 1024,
+    "h": 1280
+  }
 ]

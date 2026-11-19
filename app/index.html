@@ -3,21 +3,213 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Neon Panel — GTA 6 Style Cover Art Maker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌴</text></svg>">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+<div class="studio-container">
+  <!-- Sidebar Controls -->
+  <aside class="sidebar" id="sidebar">
+    <header class="app-header">
+      <div class="logo-badge">NEON PANEL</div>
+      <p class="app-tagline">GTA-VI Style Multi-Panel Cover Art Studio</p>
+    </header>
+
+    <!-- Quick Demos -->
+    <section class="control-group">
+      <label class="group-title">⚡ Quick 1-Click Demos</label>
+      <div class="button-row">
+        <button type="button" class="btn btn-demo" id="demo-pier">🌴 Pier Sunset</button>
+        <button type="button" class="btn btn-demo" id="demo-boulevard">🌆 Boulevard Neon</button>
+      </div>
+    </section>
+
+    <!-- Layout Picker -->
+    <section class="control-group">
+      <label class="group-title">📐 Multi-Panel Layout</label>
+      <div class="layout-grid" id="layout-picker" role="radiogroup" aria-label="Layout Selector">
+        <!-- Rendered by main.js -->
+      </div>
+    </section>
+
+    <!-- Aspect Ratio Selector -->
+    <section class="control-group">
+      <label class="group-title">🖼️ Canvas Aspect Ratio</label>
+      <div class="aspect-row" id="aspect-picker">
+        <button type="button" class="btn btn-chip active" data-aspect="16:9" data-w="1920" data-h="1080">16:9 Banner</button>
+        <button type="button" class="btn btn-chip" data-aspect="1:1" data-w="1080" data-h="1080">1:1 Square</button>
+        <button type="button" class="btn btn-chip" data-aspect="4:5" data-w="1080" data-h="1350">4:5 Portrait</button>
+      </div>
+    </section>
+
+    <!-- Per-Panel Photo Management -->
+    <section class="control-group">
+      <div class="panel-header-row">
+        <label class="group-title" id="panel-editor-title">🖼️ Active Panel (Panel 1)</label>
+        <span class="badge" id="active-panel-indicator">P1</span>
+      </div>
+      <div class="panel-pills" id="panel-pills-container">
+        <!-- Rendered by main.js based on active layout -->
+      </div>
+
+      <div class="upload-dropzone" id="dropzone">
+        <input type="file" id="photo-input" accept="image/*" class="sr-only">
+        <div class="dropzone-content">
+          <span class="dropzone-icon">📁</span>
+          <span class="dropzone-text">Click or drag & drop photo here</span>
+          <span class="dropzone-hint">PNG, JPEG, WebP</span>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-fill-all">Apply to All Panels</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-reset-crop">Reset Crop</button>
+      </div>
+
+      <!-- Crop & Pan Controls -->
+      <div class="slider-row">
+        <span class="slider-label">Zoom</span>
+        <input type="range" id="zoom-slider" min="1.0" max="3.0" step="0.05" value="1.0">
+        <span class="slider-val" id="zoom-val">1.0x</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Pan X</span>
+        <input type="range" id="pan-x-slider" min="-1.0" max="1.0" step="0.05" value="0.0">
+        <span class="slider-val" id="pan-x-val">0.0</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Pan Y</span>
+        <input type="range" id="pan-y-slider" min="-1.0" max="1.0" step="0.05" value="0.0">
+        <span class="slider-val" id="pan-y-val">0.0</span>
+      </div>
+      <div class="canvas-hint">💡 Tip: Drag directly on the canvas to pan, scroll wheel to zoom!</div>
+    </section>
+
+    <!-- Color Grading -->
+    <section class="control-group">
+      <label class="group-title">🎨 Vice City Color Grade</label>
+      <div class="preset-grid" id="preset-picker">
+        <!-- Rendered by main.js -->
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Intensity</span>
+        <input type="range" id="grade-intensity" min="0.0" max="1.0" step="0.05" value="0.85">
+        <span class="slider-val" id="grade-val">85%</span>
+      </div>
+    </section>
+
+    <!-- Vector Decorations & Overlays -->
+    <section class="control-group">
+      <label class="group-title">✨ Original Vector Overlays</label>
+      <div class="toggles-grid">
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-sun" checked>
+          <span>Retrowave Sun</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-palms" checked>
+          <span>Silhouette Palms</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-grid" checked>
+          <span>Perspective Grid</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-grain" checked>
+          <span>Film Grain</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-vignette" checked>
+          <span>Cinematic Vignette</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-frame" checked>
+          <span>Poster Border</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="dec-letterbox">
+          <span>Letterbox Bars</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Typography & Captions -->
+    <section class="control-group">
+      <label class="group-title">✍️ Poster Lettering & Captions</label>
+      <div class="field-item">
+        <label for="title-input">Main Title</label>
+        <input type="text" id="title-input" maxlength="28" value="VICE LIGHTS" placeholder="MAIN TITLE">
+      </div>
+      <div class="field-item">
+        <label for="subtitle-input">Subtitle Badge</label>
+        <input type="text" id="subtitle-input" maxlength="40" value="OCEAN DRIVE CHRONICLES" placeholder="SUBTITLE">
+      </div>
+      <div class="field-item">
+        <label for="tagline-input">Teaser Tagline</label>
+        <input type="text" id="tagline-input" maxlength="50" value="FALL 2026 • AN ORIGINAL TALE" placeholder="TAGLINE">
+      </div>
+      <div class="field-item">
+        <label for="font-select">Poster Display Font</label>
+        <select id="font-select" class="font-select">
+          <option value="Bebas Neue" selected>Bebas Neue (Condensed Poster)</option>
+          <option value="Anton">Anton (Heavy Display)</option>
+          <option value="Archivo Black">Archivo Black (Block Sans)</option>
+        </select>
+      </div>
+      <div class="field-item">
+        <label>Title Color Theme</label>
+        <div class="theme-picker" id="theme-picker">
+          <!-- Rendered by main.js -->
+        </div>
+      </div>
+      <div class="field-item">
+        <label>Text Position</label>
+        <div class="button-row">
+          <button type="button" class="btn btn-chip active" id="btn-pos-bottom" data-pos="bottom">Bottom Foot</button>
+          <button type="button" class="btn btn-chip" id="btn-pos-top" data-pos="top">Top Header</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Export Actions -->
+    <section class="control-group export-section">
+      <label class="group-title">💾 Export Poster PNG</label>
+      <div class="export-buttons">
+        <button type="button" class="btn btn-export" id="export-landscape" data-w="1920" data-h="1080">
+          <span class="btn-icon">📥</span>
+          <span class="btn-text">
+            <strong>1920 × 1080</strong>
+            <small>Landscape Banner (16:9)</small>
+          </span>
+        </button>
+        <button type="button" class="btn btn-export" id="export-square" data-w="1080" data-h="1080">
+          <span class="btn-icon">📥</span>
+          <span class="btn-text">
+            <strong>1080 × 1080</strong>
+            <small>Square Poster (1:1)</small>
+          </span>
+        </button>
+        <button type="button" class="btn btn-export" id="export-portrait" data-w="1080" data-h="1350">
+          <span class="btn-icon">📥</span>
+          <span class="btn-text">
+            <strong>1080 × 1350</strong>
+            <small>Portrait Story (4:5)</small>
+          </span>
+        </button>
+      </div>
+      <p id="export-status" class="export-status" role="status" aria-live="polite"></p>
+    </section>
+  </aside>
+
+  <!-- Main Viewport Canvas -->
+  <main class="preview-area" id="preview-area">
+    <div class="canvas-wrapper" id="canvas-wrapper">
+      <canvas id="cover-canvas" width="1920" height="1080" aria-label="Cover art preview canvas"></canvas>
+    </div>
+  </main>
+</div>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
