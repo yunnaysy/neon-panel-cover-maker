@@ -17,7 +17,7 @@
         <span class="version-tag">STUDIO 02 <i></i> OFFLINE</span>
       </header>
 
-      <section class="control-group photo-library">
+      <section class="control-group photo-library" id="sec-photos">
         <div class="section-heading">
           <div><span class="step-index">01</span><span class="group-title">Your photo cast</span></div>
           <span class="library-count">9 IMAGES</span>
@@ -35,16 +35,26 @@
         <p class="micro-hint">Click a thumbnail or drag it onto a panel.</p>
       </section>
 
-      <div class="library-note"><span class="privacy-dot"></span> Photos stay on this device. Nothing is uploaded.</div>
+      <div class="library-note" id="lib-note"><span class="privacy-dot"></span> Photos stay on this device. Nothing is uploaded.</div>
     </aside>
 
     <main class="preview-area" id="preview-area">
+      <div class="m-topbar" id="m-topbar"></div>
       <div class="preview-head">
-        <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="preview-title">VICE LIGHTS</strong></div>
-        <span class="preview-ratio">16:9 <i></i> 1920 × 1080</span>
+        <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="preview-title">NEON LIGHTS</strong></div>
+        <div class="head-actions">
+          <span class="preview-ratio">16:9 <i></i> 1920 × 1080</span>
+          <div class="history-btns" role="group" aria-label="History">
+            <button type="button" class="btn icon-btn" id="btn-undo" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" disabled>↶</button>
+            <button type="button" class="btn icon-btn" id="btn-redo" title="Redo (Shift+Ctrl/Cmd+Z)" aria-label="Redo" disabled>↷</button>
+          </div>
+          <button type="button" class="btn btn-head-export" id="btn-head-export">Export PNG ↗</button>
+        </div>
       </div>
       <div class="canvas-wrapper" id="canvas-wrapper">
-        <canvas id="cover-canvas" width="1920" height="1080" aria-label="Live cover art preview"></canvas>
+        <div class="canvas-stage" id="canvas-stage">
+          <canvas id="cover-canvas" width="1920" height="1080" aria-label="Live cover art preview"></canvas>
+        </div>
       </div>
       <div class="preview-foot"><span><i class="live-dot"></i> LIVE PREVIEW</span><span>DRAG TO REFRAME <b>·</b> SCROLL TO ZOOM</span><span class="preview-credit">MADE WITH NEON PANEL</span></div>
     </main>
@@ -55,7 +65,7 @@
         <span class="autosave"><i></i> READY</span>
       </header>
 
-      <section class="control-group">
+      <section class="control-group" id="sec-compose">
         <div class="section-heading"><div><span class="step-index">02</span><span class="group-title">Composition</span></div></div>
         <div class="control-label">LAYOUT</div>
         <div class="layout-grid" id="layout-picker" role="radiogroup" aria-label="Cover layout"></div>
@@ -67,19 +77,34 @@
         </div>
       </section>
 
-      <section class="control-group">
+      <section class="control-group" id="sec-grade">
         <div class="section-heading"><div><span class="step-index">03</span><span class="group-title">Color grade</span></div><span class="grade-value" id="grade-val">75%</span></div>
+        <div class="seg scope-seg" role="radiogroup" aria-label="Apply colour to">
+          <button type="button" class="seg-btn active" data-scope="global" role="radio" aria-checked="true">Entire poster</button>
+          <button type="button" class="seg-btn" data-scope="panel" role="radio" aria-checked="false">Selected panel</button>
+        </div>
+        <div class="panel-target" id="panel-target" hidden>
+          <button type="button" class="btn icon-btn sm" id="panel-prev" aria-label="Previous panel">‹</button>
+          <span id="panel-target-label">PANEL 01</span>
+          <button type="button" class="btn icon-btn sm" id="panel-next" aria-label="Next panel">›</button>
+          <span class="panel-target-note" id="panel-target-note">Using poster look</span>
+        </div>
         <div class="preset-grid" id="preset-picker"></div>
         <div class="slider-row grade-slider">
           <label class="slider-label" for="grade-intensity">Intensity</label>
           <input type="range" id="grade-intensity" min="0" max="1" step="0.05" value="0.75">
         </div>
+        <div class="reset-row">
+          <button type="button" class="btn btn-quiet btn-sm" id="reset-adjust">Reset strength</button>
+          <button type="button" class="btn btn-quiet btn-sm" id="reset-local">Remove panel look</button>
+          <button type="button" class="btn btn-quiet btn-sm" id="reset-colour">Reset all colour</button>
+        </div>
       </section>
 
-      <section class="control-group lettering-group">
+      <section class="control-group lettering-group" id="sec-lettering">
         <div class="section-heading"><div><span class="step-index">04</span><span class="group-title">Poster lettering</span></div><span class="type-mark">Aa</span></div>
         <div class="field-grid">
-          <div class="field-item title-field"><label for="title-input">MAIN TITLE</label><input type="text" id="title-input" maxlength="32" value="VICE LIGHTS" placeholder="Your title"></div>
+          <div class="field-item title-field"><label for="title-input">MAIN TITLE <em class="hint">use / for a second line</em></label><input type="text" id="title-input" maxlength="40" value="NEON LIGHTS" placeholder="Your title"></div>
           <div class="field-item"><label for="subtitle-input">SCRIPT SUBTITLE</label><input type="text" id="subtitle-input" maxlength="40" value="Ocean Drive" placeholder="A short subtitle"></div>
           <div class="field-item"><label for="quote-input">STAR-RATING QUOTE</label><input type="text" id="quote-input" maxlength="46" value="★★★★★  “A CLASSIC”" placeholder="A short quote"></div>
           <div class="field-item compact-fields">
@@ -89,9 +114,45 @@
         </div>
       </section>
 
-      <section class="control-group crop-group">
+      <section class="control-group type-layout" id="sec-typelayout">
+        <div class="section-heading"><div><span class="step-index">05</span><span class="group-title">Lettering size &amp; position</span></div><span class="overflow-warn" id="overflow-warn" hidden>Text too wide</span></div>
+        <div class="seg mode-seg" role="radiogroup" aria-label="Lettering placement">
+          <button type="button" class="seg-btn active" data-mode="below">Lettering below photos</button>
+          <button type="button" class="seg-btn" data-mode="over">Lettering over photos</button>
+        </div>
+        <div class="control-label">LETTERING TEMPLATES</div>
+        <div class="tpl-row" id="tpl-row" aria-label="Lettering templates"></div>
+        <div class="seg layer-seg" role="radiogroup" aria-label="Text layer">
+          <button type="button" class="seg-btn active" data-layer="title">Title</button>
+          <button type="button" class="seg-btn" data-layer="subtitle">Subtitle</button>
+          <button type="button" class="seg-btn" data-layer="billing">Billing</button>
+        </div>
+        <div class="font-row"><label for="ty-font">Font</label><select id="ty-font"></select></div>
+        <div class="num-row"><label for="ty-size">Size</label><input type="range" id="ty-size" step="1"><input type="number" class="num" data-for="ty-size" step="1"></div>
+        <div class="num-row"><label for="ty-spacing">Letter spacing</label><input type="range" id="ty-spacing" step="0.5"><input type="number" class="num" data-for="ty-spacing" step="0.5"></div>
+        <div class="num-row"><label for="ty-lh">Line height</label><input type="range" id="ty-lh" step="0.05"><input type="number" class="num" data-for="ty-lh" step="0.05"></div>
+        <div class="pos-wrap">
+          <div class="pos-grid" id="pos-grid" aria-label="Quick position">
+            <button type="button" data-c="0" data-r="0" aria-label="Top left"></button><button type="button" data-c="1" data-r="0" aria-label="Top centre"></button><button type="button" data-c="2" data-r="0" aria-label="Top right"></button>
+            <button type="button" data-c="0" data-r="1" aria-label="Middle left"></button><button type="button" data-c="1" data-r="1" aria-label="Centre"></button><button type="button" data-c="2" data-r="1" aria-label="Middle right"></button>
+            <button type="button" data-c="0" data-r="2" aria-label="Bottom left"></button><button type="button" data-c="1" data-r="2" aria-label="Bottom centre"></button><button type="button" data-c="2" data-r="2" aria-label="Bottom right"></button>
+          </div>
+          <div class="pos-fields">
+            <div class="num-row"><label for="ty-x">X</label><input type="range" id="ty-x" min="0" max="100" step="0.5"><input type="number" class="num" data-for="ty-x" min="0" max="100" step="0.5"></div>
+            <div class="num-row"><label for="ty-y">Y</label><input type="range" id="ty-y" min="0" max="100" step="0.5"><input type="number" class="num" data-for="ty-y" min="0" max="100" step="0.5"></div>
+            <label class="check"><input type="checkbox" id="ty-autofit" checked> Auto-fit (shrink to stay inside)</label>
+          </div>
+        </div>
+        <div class="reset-row">
+          <button type="button" class="btn btn-quiet btn-sm" id="ty-reset">Reset this layer</button>
+          <button type="button" class="btn btn-quiet btn-sm" id="ty-reset-all">Reset all lettering</button>
+        </div>
+        <p class="micro-hint">Tip: drag text on the poster; drag a corner to resize.</p>
+      </section>
+
+      <section class="control-group crop-group" id="sec-crop">
         <div class="section-heading">
-          <div><span class="step-index">05</span><span class="group-title" id="panel-editor-title">Active panel (P1)</span></div>
+          <div><span class="step-index">06</span><span class="group-title" id="panel-editor-title">Active panel (P1)</span></div>
           <span class="badge" id="active-panel-indicator">P1</span>
         </div>
         <div class="panel-pills" id="panel-pills-container"></div>
@@ -104,8 +165,8 @@
         </div>
       </section>
 
-      <section class="control-group export-section">
-        <div class="section-heading"><div><span class="step-index">06</span><span class="group-title">Export cover</span></div><span class="png-chip">PNG</span></div>
+      <section class="control-group export-section" id="sec-export">
+        <div class="section-heading"><div><span class="step-index">07</span><span class="group-title">Export cover</span></div><span class="png-chip">PNG</span></div>
         <div class="export-buttons">
           <button type="button" class="btn btn-export" id="export-landscape" data-w="1920" data-h="1080"><span><strong>1920 × 1080</strong><small>Landscape · 16:9</small></span><b>↗</b></button>
           <button type="button" class="btn btn-export" id="export-portrait" data-w="1080" data-h="1350"><span><strong>1080 × 1350</strong><small>Portrait · 4:5</small></span><b>↗</b></button>
@@ -114,6 +175,17 @@
         <p id="export-status" class="export-status" role="status" aria-live="polite">Ready to make your cover.</p>
       </section>
     </aside>
+  </div>
+  <div class="sheet" id="sheet" data-state="peek" aria-label="Editor controls">
+    <button type="button" class="sheet-handle" id="sheet-handle" aria-label="Expand or collapse controls"><i></i></button>
+    <nav class="sheet-tabs" role="tablist">
+      <button type="button" class="sheet-tab active" data-tab="photos">Photos</button>
+      <button type="button" class="sheet-tab" data-tab="layout">Layout</button>
+      <button type="button" class="sheet-tab" data-tab="type">Type</button>
+      <button type="button" class="sheet-tab" data-tab="colour">Colour</button>
+      <button type="button" class="sheet-tab" data-tab="export">Export</button>
+    </nav>
+    <div class="sheet-body" id="sheet-body"></div>
   </div>
   <script type="module" src="./src/main.js"></script>
 </body>

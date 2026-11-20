@@ -192,19 +192,27 @@ function splitDiagonalLayout(isLand, isPort) {
  * Returns array of { id, clipPath: [[px,py],...], x, y, width, height }.
  * Panels are inset by half the gutter on each shared edge.
  */
+// Fraction of the canvas height reserved for photos. In "lettering below photos" mode the
+// panels reflow into the area above the title band so no photo is ever hidden by lettering.
+let photoAreaFraction = 1;
+export function setPhotoArea(fraction) { photoAreaFraction = Math.max(0.3, Math.min(1, fraction || 1)); }
+export function getPhotoArea() { return photoAreaFraction; }
+
 export function computePanelPixelRects(layoutId, canvasW, canvasH, gutterPx = 10) {
-  const panels = getLayoutPanels(layoutId, canvasW, canvasH);
+  const areaH0 = canvasH * photoAreaFraction;
+  const panels = getLayoutPanels(layoutId, canvasW, areaH0);
+  const areaH = canvasH * photoAreaFraction;
   const halfG = gutterPx / 2;
 
   return panels.filter(p => p.bounds.w > 0.01 && p.bounds.h > 0.01).map(p => {
     // Convert normalized points to pixel
-    const clipPath = p.points.map(([nx,ny]) => [nx * canvasW, ny * canvasH]);
+    const clipPath = p.points.map(([nx,ny]) => [nx * canvasW, ny * areaH]);
 
     // Bounds in pixels
     const bx = p.bounds.x * canvasW;
-    const by = p.bounds.y * canvasH;
+    const by = p.bounds.y * areaH;
     const bw = p.bounds.w * canvasW;
-    const bh = p.bounds.h * canvasH;
+    const bh = p.bounds.h * areaH;
 
     // Inset clip path by half-gutter toward the center of the bounds
     const cx = bx + bw/2;

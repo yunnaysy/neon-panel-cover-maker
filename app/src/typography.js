@@ -4,8 +4,8 @@ import { getColorPreset } from './colorGrades.js';
 
 export const TITLE_COLOR_THEMES = [
   {
-    id: 'vice-sunset',
-    name: 'Vice Sunset',
+    id: 'coast-sunset',
+    name: 'Coast Sunset',
     badge: 'SUNSET',
     stops: [
       { pos: 0, color: '#fff3d4' },
@@ -23,73 +23,257 @@ const DISPLAY_FONT_STACK = '"Bebas Neue", Impact, "Arial Black", sans-serif';
 const SCRIPT_FONT_STACK = '"Kaushan Script", "Pacifico", cursive';
 const CONDENSED_FONT_STACK = '"Oswald", "Bebas Neue", Impact, sans-serif';
 const SANS_STACK = 'Arial, Helvetica, sans-serif';
-const TITLE_SAFE_TOP = 0.635;
+export const TITLE_SAFE_TOP = 0.635;
 const FOOTER_HEIGHT = 0.065;
+
+// Self-hosted OFL poster fonts. `style` is the CSS font prefix used on canvas.
+export const FONTS = [
+  { id: 'bebas',    label: 'Bebas Neue (poster)',      family: '"Bebas Neue", Impact, sans-serif',       style: 'italic 900' },
+  { id: 'anton',    label: 'Anton (heavy condensed)',   family: '"Anton", Impact, sans-serif',            style: '400' },
+  { id: 'archivo',  label: 'Archivo Black (blockbuster)', family: '"Archivo Black", "Arial Black", sans-serif', style: '400' },
+  { id: 'monoton',  label: 'Monoton (retro chrome)',    family: '"Monoton", Impact, sans-serif',          style: '400' },
+  { id: 'playfair', label: 'Playfair Display (movie serif)', family: '"Playfair Display", Georgia, serif', style: '900' },
+  { id: 'kaushan',  label: 'Kaushan Script (brush)',    family: '"Kaushan Script", cursive',              style: '400' },
+  { id: 'pacifico', label: 'Pacifico (neon script)',    family: '"Pacifico", cursive',                    style: '400' },
+  { id: 'oswald',   label: 'Oswald (condensed sans)',   family: '"Oswald", "Bebas Neue", sans-serif',     style: '600' },
+  { id: 'stencil',  label: 'Saira Stencil (billing)',   family: '"Saira Stencil One", "Oswald", sans-serif', style: '400' },
+];
+const LAYER_DEFAULT_FONT = { title: 'bebas', subtitle: 'kaushan', billing: 'oswald' };
+export function fontFor(layer, L) { return FONTS.find(f => f.id === (L && L.font)) || FONTS.find(f => f.id === LAYER_DEFAULT_FONT[layer]); }
+function fontStr(font, size, override) { return `${override || font.style} ${Math.round(size)}px ${font.family}`; }
+
+// One-tap lettering templates. 'Classic Neon' is exactly the v2 default.
+export const LETTERING_TEMPLATES = [
+  { id: 'classic-neon', name: 'Classic Neon', layers: {} },
+  { id: 'chrome-blockbuster', name: 'Chrome Blockbuster', layers: {
+    title: { font: 'archivo', effect: 'chrome', align: 'center', x: 47, y: 79.5, spacing: 1, lineHeight: 0.95 },
+    subtitle: { font: 'playfair', effect: 'plain', align: 'center', x: 47, y: 88.5, spacing: 6, upper: true, sizeScale: 0.62 },
+    billing: { font: 'oswald', align: 'center', x: 47, spacing: 3 } } },
+  { id: 'neon-script-sign', name: 'Neon Script Sign', layers: {
+    title: { font: 'pacifico', effect: 'neon-tube', upper: false, x: 6, y: 79, lineHeight: 1.1 },
+    subtitle: { font: 'oswald', effect: 'plain', upper: true, spacing: 9, x: 6.5, y: 90.5, sizeScale: 0.55 },
+    billing: { font: 'oswald', spacing: 2 } } },
+  { id: 'minimal-noir', name: 'Minimal Noir', layers: {
+    title: { font: 'playfair', effect: 'flat', spacing: 4, x: 6, y: 80 },
+    subtitle: { font: 'oswald', effect: 'plain', upper: true, spacing: 10, x: 6.2, y: 90.5, sizeScale: 0.5 },
+    billing: { font: 'stencil', spacing: 2 } } },
+  { id: 'retro-arcade', name: 'Retro Arcade', layers: {
+    title: { font: 'monoton', effect: 'neon-tube', spacing: 2, align: 'center', x: 47, y: 79.5 },
+    subtitle: { font: 'pacifico', effect: 'glow', align: 'center', x: 47, y: 90.5, sizeScale: 0.8 },
+    billing: { font: 'stencil', align: 'center', x: 47, spacing: 2 } } },
+  { id: 'stacked-bold', name: 'Stacked Bold', layers: {
+    title: { font: 'anton', effect: 'outline', spacing: 0.5, lineHeight: 0.86, x: 5.5, y: 80 },
+    subtitle: { font: 'kaushan', effect: 'glow', x: 6, y: 90.8 },
+    billing: { font: 'oswald', spacing: 1.5 } } },
+];
+export function templateLayers(id) {
+  const t = LETTERING_TEMPLATES.find(item => item.id === id) || LETTERING_TEMPLATES[0];
+  const base = defaultLayers();
+  for (const k of Object.keys(base)) Object.assign(base[k], t.layers[k] || {});
+  return base;
+}
+
+export const LAYER_RANGES = {
+  title:    { size: [48, 220], spacing: [-5, 20], lineHeight: [0.7, 1.5] },
+  subtitle: { size: [18, 80],  spacing: [-3, 12], lineHeight: [0.8, 1.8] },
+  billing:  { size: [9, 30],   spacing: [0, 8],   lineHeight: [0.8, 1.5] },
+};
+
+export function defaultLayers() {
+  return {
+    title:    { size: null, spacing: 0, lineHeight: 0.95, x: null, y: null, align: 'left', autoFit: true, font: 'bebas', effect: 'gradient', upper: true },
+    subtitle: { size: null, spacing: 0, lineHeight: 1.1,  x: null, y: null, align: 'left', autoFit: true, font: 'kaushan', effect: 'glow', upper: false },
+    billing:  { size: null, spacing: 0, lineHeight: 1.25, x: null, y: null, align: 'left', autoFit: true, font: 'oswald' },
+  };
+}
+
+// Logical unit: sizes are stored on a 1000-unit scale so every export size keeps the same look.
+export function logicalUnit(w, h) { return Math.sqrt(w * h) / 1000; }
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function setSpacing(ctx, px) {
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${px.toFixed(2)}px`;
+}
+
+function measureLines(ctx, lines) {
+  return lines.reduce((m, line) => Math.max(m, ctx.measureText(line).width), 0);
+}
+
+// Room available for a block anchored at x with the given alignment (keeps a 4% safe margin).
+function roomFor(align, x, w) {
+  const m = w * 0.04;
+  if (align === 'center') return Math.max(10, 2 * Math.min(x - m, w - m - x));
+  if (align === 'right') return Math.max(10, x - m);
+  return Math.max(10, w - m - x);
+}
 
 export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
   const {
-    mainTitle = 'VICE LIGHTS',
+    mainTitle = 'NEON LIGHTS',
     subtitle = 'Ocean Drive',
     tagline = 'ONE COAST · NO RULES · COMING SOON',
     quoteLine = '★★★★★  “AN INSTANT CLASSIC”',
-    titleTheme = 'vice-sunset',
+    titleTheme = 'coast-sunset',
     textPosition = 'bottom',
     panelLabels = [],
     badgeText = 'ORIGINAL',
   } = typo;
+  const dl = defaultLayers();
+  const layers = {};
+  for (const k of Object.keys(dl)) layers[k] = { ...dl[k], ...((typo.layers || {})[k] || {}) };
   const theme = TITLE_COLOR_THEMES.find(item => item.id === titleTheme) || TITLE_COLOR_THEMES[0];
   const poster = getColorPreset(typo.colorPreset).poster;
-  const gradeTheme = {
-    ...theme,
-    stops: poster.titleStops,
-    glow: poster.titleGlow,
-    subtitleColor: poster.subtitleColor,
-  };
-  const title = String(mainTitle || '').trim().toUpperCase();
+  const gradeTheme = { ...theme, stops: poster.titleStops, glow: poster.titleGlow, subtitleColor: poster.subtitleColor };
+  const titleRaw = String(mainTitle || '');
+  const titleLines = (layers.title.upper === false ? titleRaw : titleRaw.toUpperCase()).split(/\s*(?:\/|\n)\s*/).map(t => t.trim()).filter(Boolean);
   const isTop = textPosition === 'top';
+  const u = logicalUnit(canvasW, canvasH);
+  const info = { boxes: {}, effective: {}, overflow: {} };
 
   ctx.save();
-  drawTitleBand(ctx, canvasW, canvasH, poster);
+  drawTitleBand(ctx, canvasW, canvasH, poster, typo.letteringMode === 'over');
 
   const bandTop = isTop ? canvasH * 0.035 : canvasH * TITLE_SAFE_TOP;
   const footerTop = canvasH * (1 - FOOTER_HEIGHT);
   const bandH = footerTop - bandTop;
   const quoteY = bandTop + bandH * 0.14;
-  const titleY = bandTop + bandH * 0.56;
-  const subtitleY = bandTop + bandH * 0.91;
 
   drawQuoteLine(ctx, quoteLine, canvasW * 0.055, quoteY, canvasW, canvasH, poster.accentColor);
   drawFiveStarStrip(ctx, canvasW * 0.84, quoteY, canvasH, poster.accentColor, poster.titleGlow);
-
-  if (title) {
-    const titleSize = fitTitle(ctx, title, canvasW, canvasH);
-    drawMainTitle(ctx, title, canvasW * 0.055, titleY, titleSize, gradeTheme, canvasW);
-  }
-
-  if (subtitle && subtitle.trim()) {
-    drawScriptSubtitle(ctx, subtitle.trim(), canvasW * 0.06, subtitleY, canvasW, canvasH, gradeTheme);
-  }
 
   if (badgeText && badgeText.trim()) {
     const sealRadius = Math.min(canvasH * 0.055, canvasW * 0.065);
     drawStarburstBadge(ctx, badgeText.trim().toUpperCase(), canvasW * 0.92, bandTop + bandH * 0.57, sealRadius, poster);
   }
 
-  if (Array.isArray(panelLabels) && panelLabels.length) {
-    drawPanelLabels(ctx, panelLabels, canvasW, canvasH);
+  if (Array.isArray(panelLabels) && panelLabels.length) drawPanelLabels(ctx, panelLabels, canvasW, canvasH);
+
+  drawFooterBand(ctx, canvasW, canvasH, poster);
+
+  // --- Title layer ---
+  if (titleLines.length) {
+    const L = layers.title;
+    const font = fontFor('title', L);
+    const longest = titleLines.reduce((a, b) => (a.length > b.length ? a : b));
+    const defSize = fitTitle(ctx, longest, canvasW, canvasH, font) / u;
+    let size = clamp(L.size ?? defSize, ...LAYER_RANGES.title.size) * u;
+    const x = (L.x ?? 5.5) / 100 * canvasW;
+    const y = (L.y ?? ((bandTop + bandH * 0.56) / canvasH * 100)) / 100 * canvasH;
+    const spacing = L.spacing * u;
+    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * (L.align === 'center' ? 0.7 : 0.765));
+    ctx.font = fontStr(font, size);
+    setSpacing(ctx, spacing);
+    let width = measureLines(ctx, titleLines);
+    if (width > room) {
+      if (L.autoFit) { size *= room / width * 0.995; ctx.font = fontStr(font, size); width = measureLines(ctx, titleLines); }
+      else info.overflow.title = true;
+    }
+    // Keep the title block inside the band so it never touches the quote line or photos (shrink only).
+    if (L.autoFit) {
+      const inkH = titleLines.reduce((m, line) => { const t = ctx.measureText(line); return Math.max(m, t.actualBoundingBoxAscent + t.actualBoundingBoxDescent); }, 0);
+      const blockH = inkH + size * L.lineHeight * (titleLines.length - 1);
+      const maxH = (footerTop - bandTop) * 0.56;
+      if (blockH > maxH) { size *= maxH / blockH; ctx.font = fontStr(font, size); width = measureLines(ctx, titleLines); }
+    }
+    setSpacing(ctx, 0);
+    const lh = size * L.lineHeight;
+    const startY = y - lh * (titleLines.length - 1) / 2;
+    titleLines.forEach((line, i) => drawMainTitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, canvasW, L.align, spacing, font, L.effect));
+    info.effective.title = { size: size / u, x: x / canvasW * 100, y: y / canvasH * 100 };
+    info.boxes.title = alignedBox(L.align, x, startY - size * 0.55, width, lh * (titleLines.length - 1) + size * 1.1);
   }
 
-  drawFooterStrip(ctx, String(tagline || '').trim().toUpperCase(), canvasW, canvasH, poster);
+  // --- Subtitle layer ---
+  if (subtitle && subtitle.trim()) {
+    const L = layers.subtitle;
+    const font = fontFor('subtitle', L);
+    let size = clamp(L.size ?? (canvasH * 0.061 * (L.sizeScale || 1) / u), ...LAYER_RANGES.subtitle.size) * u;
+    const x = (L.x ?? 6) / 100 * canvasW;
+    const y = (L.y ?? ((bandTop + bandH * 0.91) / canvasH * 100)) / 100 * canvasH;
+    const spacing = L.spacing * u;
+    const lines = (L.upper ? subtitle.trim().toUpperCase() : subtitle.trim()).split(/\n/);
+    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * 0.9);
+    ctx.font = fontStr(font, size);
+    setSpacing(ctx, spacing);
+    let width = measureLines(ctx, lines);
+    if (width > room) {
+      if (L.autoFit) { size *= room / width * 0.995; ctx.font = fontStr(font, size); width = measureLines(ctx, lines); }
+      else info.overflow.subtitle = true;
+    }
+    setSpacing(ctx, 0);
+    const lh = size * L.lineHeight;
+    const startY = y - lh * (lines.length - 1) / 2;
+    lines.forEach((line, i) => drawScriptSubtitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, L.align, spacing, font, L.effect));
+    info.effective.subtitle = { size: size / u, x: x / canvasW * 100, y: y / canvasH * 100 };
+    info.boxes.subtitle = alignedBox(L.align, x, startY - size * 0.6, width, lh * (lines.length - 1) + size * 1.2);
+  }
+
+  // --- Billing layer (footer tagline + credit line) ---
+  {
+    const L = layers.billing;
+    const stripH = canvasH * FOOTER_HEIGHT;
+    const tag = String(tagline || '').trim().toUpperCase();
+    const lines = [tag, 'AN ORIGINAL NEON PANEL COVER  ·  MADE FOR THE NIGHT'].filter(Boolean);
+    const font = fontFor('billing', L);
+    let size = clamp(L.size ?? (stripH * 0.37 / u), ...LAYER_RANGES.billing.size) * u;
+    const x = (L.x ?? 7.5) / 100 * canvasW;
+    const y = (L.y ?? ((canvasH - stripH * 0.4) / canvasH * 100)) / 100 * canvasH;
+    const spacing = (L.spacing + 1.2) * u;
+    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * (L.align === 'center' ? 0.66 : 0.8));
+    ctx.font = fontStr(font, size);
+    setSpacing(ctx, spacing);
+    let width = ctx.measureText(lines[0] || '').width;
+    if (width > room) {
+      if (L.autoFit) size *= room / width * 0.995;
+      else info.overflow.billing = true;
+    }
+    const lh = size * L.lineHeight;
+    const top = y - lh * 0.5;
+    ctx.textAlign = L.align;
+    ctx.textBaseline = 'middle';
+    ctx.font = fontStr(font, size);
+    setSpacing(ctx, spacing);
+    ctx.fillStyle = '#f6f2f8';
+    if (lines[0]) ctx.fillText(lines[0], x, top);
+    const small = Math.max(6, size * 0.42);
+    ctx.font = `500 ${Math.round(small)}px ${SANS_STACK}`;
+    setSpacing(ctx, small * 0.05);
+    ctx.fillStyle = 'rgba(240, 230, 245, .7)';
+    ctx.fillText(lines[1], x, top + lh * 0.5 + small * 0.6);
+    width = Math.max(width, ctx.measureText(lines[1]).width);
+    setSpacing(ctx, 0);
+    info.effective.billing = { size: size / u, x: x / canvasW * 100, y: y / canvasH * 100 };
+    info.boxes.billing = alignedBox(L.align, x, top - size * 0.6, Math.min(width, room), lh * 0.5 + small * 1.2 + size * 0.6);
+  }
+
+  drawMiniBarcode(ctx, Math.round(canvasW * 0.91), Math.round(canvasH * (1 - FOOTER_HEIGHT) + canvasH * FOOTER_HEIGHT * 0.14), Math.round(canvasW * 0.06), Math.round(canvasH * FOOTER_HEIGHT * 0.66));
   ctx.restore();
+  return info;
+}
+
+function alignedBox(align, x, y, width, height) {
+  const left = align === 'center' ? x - width / 2 : align === 'right' ? x - width : x;
+  return { x: left, y, w: width, h: height };
 }
 
 export function getTitleSafeZone(canvasH) {
   return { top: canvasH * TITLE_SAFE_TOP, bottom: canvasH };
 }
 
-function drawTitleBand(ctx, w, h, poster) {
+function drawTitleBand(ctx, w, h, poster, over = false) {
   const top = h * TITLE_SAFE_TOP;
   const footerTop = h * (1 - FOOTER_HEIGHT);
+  if (over) {
+    // Lettering over photos: a soft scrim instead of a solid band so photos stay readable.
+    const scrim = ctx.createLinearGradient(0, top - h * 0.06, 0, footerTop);
+    scrim.addColorStop(0, 'rgba(10, 8, 16, 0)');
+    scrim.addColorStop(0.55, 'rgba(10, 8, 16, .38)');
+    scrim.addColorStop(1, 'rgba(10, 8, 16, .62)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(0, top - h * 0.06, w, footerTop - top + h * 0.06);
+    return;
+  }
   const bg = ctx.createLinearGradient(0, top, w, footerTop);
   poster.bandStops.forEach((color, index) => {
     bg.addColorStop(index / (poster.bandStops.length - 1), color);
@@ -134,11 +318,11 @@ function drawTitleBand(ctx, w, h, poster) {
   drawPalmSilhouette(ctx, w * 0.975, footerTop - h * 0.012, h * 0.11, poster.accentColor);
 }
 
-function fitTitle(ctx, text, w, h) {
+function fitTitle(ctx, text, w, h, font) {
   const maxWidth = w * 0.765;
   let size = h * 0.22;
   while (size > 1) {
-    ctx.font = `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`;
+    ctx.font = font ? fontStr(font, size) : `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`;
     const textWidth = ctx.measureText(text).width;
     if (textWidth <= maxWidth) break;
     size = Math.max(1, size * maxWidth / textWidth * 0.995);
@@ -146,13 +330,38 @@ function fitTitle(ctx, text, w, h) {
   return Math.round(size);
 }
 
-function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW) {
+function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW, align = 'left', spacing = 0, font = null, effect = 'gradient') {
   ctx.save();
-  ctx.font = `italic 900 ${fontSize}px ${DISPLAY_FONT_STACK}`;
-  ctx.textAlign = 'left';
+  ctx.font = font ? fontStr(font, fontSize) : `italic 900 ${fontSize}px ${DISPLAY_FONT_STACK}`;
+  setSpacing(ctx, spacing);
+  ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
+
+  if (effect === 'neon-tube') {
+    // Glowing tube lettering: coloured halo + hot white core.
+    ctx.lineWidth = Math.max(2, fontSize * 0.05);
+    ctx.strokeStyle = theme.glow;
+    ctx.shadowColor = theme.glow;
+    for (const blur of [fontSize * 0.45, fontSize * 0.2]) { ctx.shadowBlur = blur; ctx.strokeText(text, x, y); }
+    ctx.shadowBlur = fontSize * 0.12;
+    ctx.fillStyle = theme.stops[1] || '#ffffff';
+    ctx.fillText(text, x, y);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.88)';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
+  if (effect === 'flat') {
+    ctx.shadowColor = 'rgba(0,0,0,.55)';
+    ctx.shadowBlur = fontSize * 0.12;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
 
   const depth = Math.max(7, Math.round(fontSize * 0.09));
   for (let d = depth; d > 0; d--) {
@@ -162,21 +371,30 @@ function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW) {
   }
 
   const outline = Math.max(5, fontSize * 0.085);
-  ctx.strokeStyle = theme.outline;
+  ctx.strokeStyle = effect === 'chrome' ? '#0d0b14' : theme.outline;
   ctx.lineWidth = outline;
   ctx.strokeText(text, x, y);
 
   ctx.shadowColor = theme.glow;
   ctx.shadowBlur = Math.min(fontSize * 0.22, canvasW * 0.035);
-  ctx.strokeStyle = theme.outline;
   ctx.lineWidth = outline * 0.55;
   ctx.strokeText(text, x, y);
   ctx.shadowBlur = 0;
 
   const fill = ctx.createLinearGradient(0, y - fontSize * 0.55, 0, y + fontSize * 0.48);
-  theme.stops.forEach((color, index) => {
-    fill.addColorStop(index / (theme.stops.length - 1), color);
-  });
+  const stops = effect === 'chrome'
+    ? ['#ffffff', '#dfe5f2', '#8a93ab', '#3d4458', '#c9d1e4', '#ffffff']
+    : theme.stops;
+  stops.forEach((color, index) => fill.addColorStop(index / (stops.length - 1), color));
+  if (effect === 'outline') {
+    ctx.lineWidth = Math.max(2, fontSize * 0.035);
+    ctx.strokeStyle = fill;
+    ctx.fillStyle = 'rgba(14, 8, 20, .92)';
+    ctx.fillText(text, x, y);
+    ctx.strokeText(text, x, y);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = fill;
   ctx.fillText(text, x, y);
 
@@ -186,29 +404,29 @@ function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW) {
   ctx.restore();
 }
 
-function drawScriptSubtitle(ctx, text, x, y, w, h, theme) {
+function drawScriptSubtitle(ctx, text, x, y, size, theme, align = 'left', spacing = 0, font = null, effect = 'glow') {
   ctx.save();
-  let size = Math.round(h * 0.061);
-  ctx.textAlign = 'left';
+  ctx.textAlign = align;
   ctx.textBaseline = 'middle';
-  ctx.font = `400 ${size}px ${SCRIPT_FONT_STACK}`;
-  const maxWidth = w * 0.72;
-  while (ctx.measureText(text).width > maxWidth && size > 6) {
-    size -= 1;
-    ctx.font = `400 ${size}px ${SCRIPT_FONT_STACK}`;
-  }
-
+  ctx.font = font ? fontStr(font, size) : `400 ${size}px ${SCRIPT_FONT_STACK}`;
+  setSpacing(ctx, spacing);
   ctx.lineWidth = Math.max(2, size * 0.075);
   ctx.lineJoin = 'round';
   ctx.strokeStyle = 'rgba(24, 9, 26, .9)';
-  ctx.strokeText(text, x, y, maxWidth);
+  ctx.strokeText(text, x, y);
+  if (effect === 'plain') {
+    ctx.fillStyle = theme.subtitleColor;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
   ctx.shadowColor = theme.subtitleColor;
   ctx.shadowBlur = size * 0.65;
   ctx.fillStyle = theme.subtitleColor;
-  ctx.fillText(text, x, y, maxWidth);
+  ctx.fillText(text, x, y);
   ctx.shadowBlur = size * 0.3;
-  ctx.fillStyle = '#fff2f5';
-  ctx.fillText(text, x, y, maxWidth);
+  ctx.fillStyle = '#fff5f8';
+  ctx.fillText(text, x, y);
   ctx.restore();
 }
 
@@ -280,7 +498,7 @@ function drawStarburstBadge(ctx, text, cx, cy, radius, poster) {
   ctx.restore();
 }
 
-function drawFooterStrip(ctx, tagline, w, h, poster) {
+function drawFooterBand(ctx, w, h, poster) {
   const stripH = h * FOOTER_HEIGHT;
   const y = h - stripH;
   const band = ctx.createLinearGradient(0, y, w, h);
@@ -289,25 +507,7 @@ function drawFooterStrip(ctx, tagline, w, h, poster) {
   });
   ctx.fillStyle = band;
   ctx.fillRect(0, y, w, stripH);
-
   drawPalmSilhouette(ctx, w * 0.035, h * 0.99, stripH * 0.92, poster.accentColor);
-
-  const text = tagline.split('').join('\u2009');
-  let size = Math.max(8, Math.round(stripH * 0.37));
-  ctx.font = `600 ${size}px ${CONDENSED_FONT_STACK}`;
-  while (ctx.measureText(text).width > w * 0.68 && size > 7) {
-    size -= 1;
-    ctx.font = `600 ${size}px ${CONDENSED_FONT_STACK}`;
-  }
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#fff0d6';
-  ctx.fillText(text, w * 0.075, y + stripH * 0.43);
-
-  ctx.font = `500 ${Math.max(6, Math.round(stripH * 0.15))}px ${SANS_STACK}`;
-  ctx.fillStyle = 'rgba(255, 224, 214, .66)';
-  ctx.fillText('AN ORIGINAL NEON PANEL COVER  ·  MADE FOR THE NIGHT', w * 0.075, y + stripH * 0.79);
-  drawMiniBarcode(ctx, w * 0.91, y + stripH * 0.14, w * 0.06, stripH * 0.66);
 }
 
 function drawPalmSilhouette(ctx, x, baseY, size, color) {
@@ -335,15 +535,16 @@ function drawPalmSilhouette(ctx, x, baseY, size, color) {
 
 function drawMiniBarcode(ctx, x, y, w, h) {
   ctx.save();
-  ctx.fillStyle = 'rgba(255, 239, 218, .92)';
+  ctx.fillStyle = '#f7f7f7';
   ctx.fillRect(x, y, w, h);
-  ctx.fillStyle = '#241520';
-  for (let i = 0; i < 27; i++) {
+  ctx.fillStyle = '#16121c';
+  const unit = Math.max(1, Math.floor(w / 46));
+  let cx = x + unit * 2;
+  for (let i = 0; cx < x + w - unit * 3; i++) {
     const hash = ((i * 13 + 7) * 17) % 23;
-    if (hash > 5) {
-      const barW = w / 48 * (hash > 16 ? 1.7 : 0.85);
-      ctx.fillRect(x + i * w / 29, y + 1, barW, h - 2);
-    }
+    const barW = unit * (hash > 16 ? 2 : 1);
+    if (hash > 5) ctx.fillRect(cx, y + unit, barW, h - unit * 2);
+    cx += barW + unit;
   }
   ctx.restore();
 }
