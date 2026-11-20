@@ -49,7 +49,11 @@ The covers were exported as full-resolution PNGs through Neon Panel's own canvas
 |:---:|:---:|:---:|:---:|
 | ![Landscape cover](screenshots/1-cover.jpg) | ![Neon Panel studio](screenshots/2-editor.jpg) | ![Portrait cover](screenshots/3-cover.jpg) | ![Square cover](screenshots/4-cover.jpg) |
 
-The exported cover PNGs were downscaled to 1280 × 720, 1024 × 1280 and 1024 × 1024. The editor was captured in Chrome at 1280 × 800.
+**Phone layout:**
+
+<img src="screenshots/5-mobile.jpg" alt="Neon Panel on a phone" width="300">
+
+The exported cover PNGs were downscaled to 1280 × 720, 1024 × 1280 and 1024 × 1024. The editor screenshot shows the current live demo on desktop.
 
 ## Fonts, images and license
 
