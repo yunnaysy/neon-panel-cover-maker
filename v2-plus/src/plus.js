@@ -353,7 +353,6 @@ function syncColourControls() {
   });
   $('grade-intensity').value = intensity;
   $('grade-val').textContent = `${Math.round(intensity * 100)}%`;
-  setPair('adj-exposure', adj.exposure); setPair('adj-contrast', adj.contrast); setPair('adj-saturation', adj.saturation);
   const n = String((s.activePanelIndex < 0 ? 0 : s.activePanelIndex) + 1).padStart(2, '0');
   $('panel-target-label').textContent = `PANEL ${n}`;
   $('panel-target-note').textContent = local ? 'Own look' : 'Using poster look';
@@ -386,13 +385,9 @@ function initColour(presets) {
     $('grade-val').textContent = `${Math.round(g.intensity * 100)}%`;
     api.redraw();
   }, true);
-  const adjTarget = () => (colourScope === 'panel' ? localGrade(true).adjustments : api.state.adjustments);
-  bindPair('adj-exposure', v => { adjTarget().exposure = v; api.redraw(); });
-  bindPair('adj-contrast', v => { adjTarget().contrast = v; api.redraw(); });
-  bindPair('adj-saturation', v => { adjTarget().saturation = v; api.redraw(); });
   $('reset-adjust').addEventListener('click', () => {
-    const t = colourScope === 'panel' ? localGrade(false)?.adjustments : api.state.adjustments;
-    if (t) Object.assign(t, { exposure: 0, contrast: 0, saturation: 0 });
+    if (colourScope === 'panel') { const g = localGrade(false); if (g) g.intensity = 0.75; }
+    else api.state.colorIntensity = 0.75;
     syncColourControls(); api.redraw();
   });
   $('reset-local').addEventListener('click', () => {

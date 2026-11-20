@@ -1,5 +1,5 @@
 // Cinematic color grading presets for Neon Panel v2.
-// Seven named looks: Golden Hour, Neon Night, Magenta Dusk, Neon Haze, Pastel Deco, Midnight Drive, 35mm Grit.
+// Golden Hour, Neon Night, Magenta Dusk, Neon Haze, Pastel Deco.
 
 export const COLOR_PRESETS = [
   {
@@ -119,54 +119,6 @@ export const COLOR_PRESETS = [
       { pos: 0.0, color: 'rgba(255, 220, 240, 0.35)' },
       { pos: 0.5, color: 'rgba(180, 230, 255, 0.30)' },
       { pos: 1.0, color: 'rgba(255, 240, 210, 0.28)' },
-    ],
-    blendMode: 'soft-light',
-  },
-  {
-    id: 'midnight-drive',
-    name: 'Midnight Drive',
-    badge: '🌙',
-    cssFilter: 'contrast(1.22) saturate(1.05) brightness(0.92) hue-rotate(-8deg)',
-    poster: {
-      titleStops: ['#ffffff', '#c9f6ff', '#5fd3ff', '#3a6bff'],
-      titleGlow: 'rgba(70, 170, 255, .9)',
-      subtitleColor: '#7fe7ff',
-      bandStops: ['#060d1a', '#0b1b2e', '#10283d', '#0a1426'],
-      sunColors: ['rgba(90, 190, 255, .22)', 'rgba(40, 90, 200, .18)'],
-      footerStops: ['#08121f', '#12324a', '#1b2240'],
-      accentColor: '#9be8ff',
-      lineColor: 'rgba(110, 200, 255, .6)',
-      glowColor: 'rgba(40, 140, 255, .26)',
-      vignetteColor: 'rgba(2, 8, 20, .86)',
-    },
-    stops: [
-      { pos: 0.0, color: 'rgba(60, 200, 255, 0.40)' },
-      { pos: 0.5, color: 'rgba(20, 80, 160, 0.46)' },
-      { pos: 1.0, color: 'rgba(4, 10, 30, 0.86)' },
-    ],
-    blendMode: 'overlay',
-  },
-  {
-    id: 'grit-35mm',
-    name: '35mm Grit',
-    badge: '🎞️',
-    cssFilter: 'contrast(1.1) saturate(0.72) brightness(1.02) sepia(0.12)',
-    poster: {
-      titleStops: ['#ffffff', '#f2e9ff', '#ff9a8a', '#d6456d'],
-      titleGlow: 'rgba(230, 90, 110, .7)',
-      subtitleColor: '#ff8fa8',
-      bandStops: ['#17151b', '#26222b', '#3a2d33', '#211c24'],
-      sunColors: ['rgba(255, 170, 150, .2)', 'rgba(150, 120, 170, .16)'],
-      footerStops: ['#1b181f', '#3a2f38', '#2a2230'],
-      accentColor: '#ffb3a6',
-      lineColor: 'rgba(230, 200, 210, .5)',
-      glowColor: 'rgba(200, 120, 110, .2)',
-      vignetteColor: 'rgba(10, 8, 12, .86)',
-    },
-    stops: [
-      { pos: 0.0, color: 'rgba(230, 230, 240, 0.22)' },
-      { pos: 0.5, color: 'rgba(120, 110, 130, 0.30)' },
-      { pos: 1.0, color: 'rgba(20, 16, 24, 0.70)' },
     ],
     blendMode: 'soft-light',
   },
