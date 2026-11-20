@@ -4,7 +4,18 @@
 [![rank](https://make.fun/badge/gta6-cover-art-01/yunnaysy/neon-panel-cover-maker/rank.svg)](https://make.fun/bounty/gta6-cover-art-01)
 [![reward](https://make.fun/badge/gta6-cover-art-01/yunnaysy/neon-panel-cover-maker/reward.svg)](https://make.fun/bounty/gta6-cover-art-01)
 
-**Live demo:** [https://yunnaysy.github.io/neon-panel-cover-maker/](https://yunnaysy.github.io/neon-panel-cover-maker/)
+**Live demo (no install, works on desktop, tablet and phone):** [https://yunnaysy.github.io/neon-panel-cover-maker/](https://yunnaysy.github.io/neon-panel-cover-maker/)
+
+### New in the live demo
+
+- **Every photo stays visible:** lettering sits below the photos by default, with an optional see-through "over photos" mode.
+- **Undo / redo** buttons plus Ctrl/Cmd+Z and Shift+Ctrl/Cmd+Z.
+- **Lettering controls:** size, spacing, line height and position for title, subtitle and billing, drag on the poster, 9-position grid and auto-fit.
+- **9 poster fonts and 6 one-tap lettering templates** (Classic Neon, Chrome Blockbuster, Neon Script Sign, Minimal Noir, Retro Arcade, Stacked Bold).
+- **Colour grade scope:** apply a look to the entire poster or only the selected panel, with per-panel strength.
+- **Tablet and phone layout** with the neon brand header and a bottom control sheet.
+
+The previous version stays online at [/v2/](https://yunnaysy.github.io/neon-panel-cover-maker/v2/).
 
 Neon Panel is a private-by-design poster maker inspired by sunlit coastal cities, neon nights and graphic crime-story cover art. Build a collage from local photos, reframe each panel, add custom lettering and export a high-resolution PNG. The app is static, dependency-free and works offline.
 
@@ -17,15 +28,13 @@ Neon Panel is a private-by-design poster maker inspired by sunlit coastal cities
 - **Three PNG exports:** 1920 × 1080 (16:9), 1080 × 1350 (4:5) and 1080 × 1080 (1:1).
 - **Offline and private:** No network requests, uploads, build step or runtime dependencies. Your own photos remain in the browser on your device.
 
-## Run locally
+## Use it
 
-Use Node.js 22 or newer to serve the static app:
+Open the [live demo](https://yunnaysy.github.io/neon-panel-cover-maker/) in any modern browser. Nothing to install, and photos never leave your device.
 
-```bash
-node serve.ts --port 8123
-```
+### For developers
 
-Open [http://localhost:8123](http://localhost:8123). The editor starts with a sample cast so the canvas is ready immediately. To package the entry using the make.fun harness:
+The app is static and dependency-free. To serve it yourself with Node.js 22 or newer, run `node serve.ts --port 8123`. To package the entry with the make.fun harness:
 
 ```bash
 mkdir -p out
