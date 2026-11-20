@@ -11,7 +11,13 @@ export const EXPORT_PRESETS = [
 /**
  * Renders state onto an offscreen canvas at target resolution and triggers PNG download.
  */
-export function exportCoverPng(state, targetWidth, targetHeight, filename = 'neon-panel-cover.png') {
+export async function exportCoverPng(state, targetWidth, targetHeight, filename = 'neon-panel-cover.png') {
+  // Make sure every chosen poster font is ready before drawing the export.
+  try {
+    const { FONTS } = await import('./typography.js');
+    await Promise.all(FONTS.map(f => document.fonts.load(`${f.style} 60px ${f.family}`)));
+    await document.fonts.ready;
+  } catch {}
   return new Promise((resolve, reject) => {
     try {
       const offscreen = document.createElement('canvas');

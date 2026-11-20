@@ -3,7 +3,7 @@
 // panel keylines, outer frame, grain, vignette, halftone, typography.
 // Never draws decorations (sun, palms) over photo subjects.
 
-import { computePanelPixelRects } from './layouts.js';
+import { computePanelPixelRects, setPhotoArea } from './layouts.js';
 import { applyColorGrade, getColorPreset } from './colorGrades.js';
 import {
   drawPanelGutters,
@@ -13,12 +13,54 @@ import {
   drawVignette,
   drawHalftone,
 } from './decorations.js';
-import { drawCoverTypography } from './typography.js';
+import { drawCoverTypography, TITLE_SAFE_TOP } from './typography.js';
 
 /**
  * Main render function: draws complete cover art onto a canvas.
  */
+// Offscreen cache of the graded photo layer, so typography edits never re-grade photos.
+const photoLayerCache = new Map();
+let imageIds = new WeakMap();
+let nextImageId = 1;
+function imageKey(img) {
+  if (!img) return 0;
+  if (!imageIds.has(img)) imageIds.set(img, nextImageId++);
+  return imageIds.get(img);
+}
+
+function adjustmentFilter(adj) {
+  if (!adj) return '';
+  const parts = [];
+  if (adj.exposure) parts.push(`brightness(${(1 + adj.exposure / 100).toFixed(3)})`);
+  if (adj.contrast) parts.push(`contrast(${(1 + adj.contrast / 100).toFixed(3)})`);
+  if (adj.saturation) parts.push(`saturate(${(1 + adj.saturation / 100).toFixed(3)})`);
+  return parts.join(' ');
+}
+
 export function renderCoverArt(canvas, state, options = {}) {
+  const w = canvas.width;
+  const h = canvas.height;
+  const typo = state.typography || {};
+  setPhotoArea(typo.letteringMode === 'over' || typo.textPosition === 'top' ? 1 : TITLE_SAFE_TOP);
+  const panelPhotosKey = (state.panelPhotos || []).map(p => p ? [imageKey(p.image), p.panX, p.panY, p.zoom] : null);
+  const key = JSON.stringify([state.layout, w, h, state.colorPreset, state.colorIntensity, state.adjustments,
+    state.panelGrades, panelPhotosKey, imageKey(state.globalPhoto), options.highlightPanelIndex, state.decorations, typo.letteringMode]);
+  let layer = photoLayerCache.get(key);
+  if (!layer) {
+    layer = document.createElement('canvas');
+    layer.width = w; layer.height = h;
+    renderPhotoLayer(layer, state, options);
+    if (photoLayerCache.size > 6) photoLayerCache.delete(photoLayerCache.keys().next().value);
+    photoLayerCache.set(key, layer);
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  ctx.drawImage(layer, 0, 0);
+  // Separate pass: typography on top of the graded photos.
+  return drawCoverTypography(ctx, { ...(state.typography || {}), colorPreset: state.colorPreset || 'golden-hour' }, w, h);
+}
+
+function renderPhotoLayer(canvas, state, options) {
   const ctx = canvas.getContext('2d');
   const w = canvas.width;
   const h = canvas.height;
@@ -29,7 +71,7 @@ export function renderCoverArt(canvas, state, options = {}) {
 
   // 1. Gutter base layer: warm off-white fills the whole canvas
   if (panels.length > 1) {
-    ctx.fillStyle = '#f0ece4';
+    ctx.fillStyle = '#f4f4f6';
     ctx.fillRect(0, 0, w, h);
   } else {
     // Full bleed: dark base
@@ -49,7 +91,8 @@ export function renderCoverArt(canvas, state, options = {}) {
 
   panels.forEach((panel, idx) => {
     const photoData = panelPhotos[idx] || (globalPhoto ? { image: globalPhoto, panX: 0, panY: 0, zoom: 1 } : null);
-    renderPanel(ctx, panel, photoData, colorPreset, colorIntensity);
+    const local = (state.panelGrades || [])[idx] || null;
+    renderPanel(ctx, panel, photoData, colorPreset, colorIntensity, state.adjustments, local);
   });
 
   // 3. Panel keylines (thin black lines on panel edges)
@@ -59,9 +102,8 @@ export function renderCoverArt(canvas, state, options = {}) {
   if (options.highlightPanelIndex != null && panels[options.highlightPanelIndex]) {
     const hp = panels[options.highlightPanelIndex];
     ctx.save();
-    ctx.strokeStyle = '#66e4eb';
-    ctx.lineWidth = Math.max(2, Math.round(Math.min(w, h) * 0.003));
-    ctx.setLineDash([Math.max(7, w * 0.006), Math.max(4, w * 0.004)]);
+    ctx.strokeStyle = '#c9b6ff';
+    ctx.lineWidth = Math.max(2, Math.round(Math.min(w, h) * 0.0024));
     if (hp.clipPath && hp.clipPath.length > 2) {
       ctx.beginPath();
       ctx.moveTo(hp.clipPath[0][0], hp.clipPath[0][1]);
@@ -95,16 +137,13 @@ export function renderCoverArt(canvas, state, options = {}) {
     drawHalftone(ctx, w, h, 0.25);
   }
 
-  // 8. Typography (title, subtitle, quote, badge, footer, panel labels)
-  drawCoverTypography(ctx, { ...(state.typography || {}), colorPreset }, w, h);
-
 }
 
 /**
  * Draws an individual panel: clips to its polygon, draws photo with pan & zoom,
  * then applies color grade.
  */
-function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
+function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity, adjustments, local) {
   ctx.save();
 
   // Clip to panel polygon
@@ -140,10 +179,12 @@ function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
     const destY = panel.y + offsetY;
 
     // Apply CSS filter for the color preset
+    // Global grade first (same base filter as v2, plus optional fine adjustments).
     const preset = getColorPreset(colorPreset);
-    ctx.filter = preset.cssFilter || 'none';
+    ctx.filter = `${preset.cssFilter || ''} ${adjustmentFilter(adjustments)}`.trim() || 'none';
     ctx.drawImage(img, destX, destY, drawW, drawH);
     ctx.filter = 'none';
+    photoData._dest = [destX, destY, drawW, drawH];
   } else {
     // Stylized empty panel placeholder
     const phGrad = ctx.createLinearGradient(panel.x, panel.y, panel.x + panel.width, panel.y + panel.height);
@@ -159,8 +200,21 @@ function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
     ctx.fillText(`PANEL ${panel.id + 1}`, panel.x + panel.width * 0.5, panel.y + panel.height * 0.5);
   }
 
-  // Apply color grade tint
+  // Apply the poster (global) colour grade wash
   applyColorGrade(ctx, colorPreset, colorIntensity, panel.width, panel.height, panel.x, panel.y);
+
+  // Local panel grade layered on top of the globally graded pixels: C = (1-a)*C_in + a*C_local
+  if (local && photoData && photoData.image && local.intensity > 0.01) {
+    const lp = getColorPreset(local.preset);
+    const [dx, dy, dw, dh] = photoData._dest;
+    const a = Math.max(0, Math.min(1, local.intensity));
+    ctx.globalAlpha = a;
+    ctx.filter = `${lp.cssFilter || ''} ${adjustmentFilter(local.adjustments)}`.trim() || 'none';
+    ctx.drawImage(photoData.image, dx, dy, dw, dh);
+    ctx.filter = 'none';
+    ctx.globalAlpha = 1;
+    applyColorGrade(ctx, local.preset, a, panel.width, panel.height, panel.x, panel.y);
+  }
 
   ctx.restore();
 }

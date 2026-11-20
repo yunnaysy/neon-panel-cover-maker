@@ -8,6 +8,8 @@ import { COLOR_PRESETS } from './colorGrades.js';
 import { renderCoverArt } from './renderer.js';
 import { exportCoverPng } from './export.js';
 import { runShotHarness } from './shots.js';
+import { defaultLayers } from './typography.js';
+import { initPlus, drawEditorOverlay, setTypoInfo } from './plus.js';
 
 // === SAMPLE PHOTOS ===
 const SAMPLE_LIST = [
@@ -64,21 +66,26 @@ export const state = {
   globalPhoto: null,
   colorPreset: 'golden-hour',
   colorIntensity: 0.75,
+  adjustments: { exposure: 0, contrast: 0, saturation: 0 },
+  panelGrades: [],
   decorations: {
     grain: true,
     vignette: true,
     halftone: true,
   },
   typography: {
-    mainTitle: 'VICE LIGHTS',
+    mainTitle: 'NEON LIGHTS',
     subtitle: 'Ocean Drive',
     tagline: 'ONE COAST · NO RULES · COMING SOON',
     quoteLine: '★★★★★  “A CLASSIC”',
     badgeText: 'ORIGINAL',
-    titleTheme: 'vice-sunset',
+    titleTheme: 'coast-sunset',
     titleFont: 'Bebas Neue',
     textPosition: 'bottom',
     panelLabels: [],
+    layers: defaultLayers(),
+    template: 'classic-neon',
+    letteringMode: 'below',
   },
 };
 
@@ -103,7 +110,9 @@ export function redraw() {
   const highlightIdx = isCoverShot || state.activePanelIndex < 0
     ? null
     : (state.hoveredPanelIndex ?? state.activePanelIndex);
-  renderCoverArt(canvas, state, { highlightPanelIndex: highlightIdx });
+  const info = renderCoverArt(canvas, state, { highlightPanelIndex: highlightIdx });
+  setTypoInfo(info);
+  if (!isCoverShot) drawEditorOverlay(canvas);
 }
 
 /** Updates panel pills in UI. */
@@ -427,19 +436,21 @@ function initCropAndPan() {
   let isDragging = false;
   let startX = 0, startY = 0;
 
-  canvas.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('pointerdown', (e) => {
     const pt = getCanvasCoords(e);
     const panelIdx = getPanelAtPoint(pt.x, pt.y);
     if (panelIdx !== -1) {
       setActivePanel(panelIdx);
       isDragging = true;
+      canvas.setPointerCapture?.(e.pointerId);
       startX = e.clientX;
       startY = e.clientY;
     }
   });
 
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('pointermove', (e) => {
     if (!isDragging) {
+      if (e.pointerType !== 'mouse') return;
       const pt = getCanvasCoords(e);
       const panelIdx = getPanelAtPoint(pt.x, pt.y);
       if (panelIdx !== state.hoveredPanelIndex && panelIdx !== -1) {
@@ -463,7 +474,8 @@ function initCropAndPan() {
     redraw();
   });
 
-  window.addEventListener('mouseup', () => { isDragging = false; });
+  window.addEventListener('pointerup', () => { isDragging = false; });
+  window.addEventListener('pointercancel', () => { isDragging = false; });
 
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -582,6 +594,11 @@ async function initApp() {
       document.fonts.load('40px "Pacifico"'),
       document.fonts.load('40px "Kaushan Script"'),
       document.fonts.load('30px "Oswald"'),
+      document.fonts.load('40px "Anton"'),
+      document.fonts.load('40px "Archivo Black"'),
+      document.fonts.load('40px "Monoton"'),
+      document.fonts.load('900 40px "Playfair Display"'),
+      document.fonts.load('40px "Saira Stencil One"'),
       document.fonts.ready,
     ]);
   } catch (err) {
@@ -596,6 +613,7 @@ async function initApp() {
   initCropAndPan();
   initCaptionAndDecorations();
   initExportButtons();
+  initPlus({ state, canvas, redraw, syncUI, setActivePanel, getCanvasCoords, getPanelAtPoint, exportCoverPng });
 
   // Check for screenshot harness
   const params = new URLSearchParams(location.search);
