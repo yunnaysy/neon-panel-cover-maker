@@ -427,7 +427,7 @@ function fitCanvas() {
 }
 
 const TAB_SECTIONS = {
-  photos: ['sec-photos'],
+  photos: ['sec-photos', 'lib-note'],
   layout: ['sec-compose', 'sec-crop'],
   type: ['sec-lettering', 'sec-typelayout'],
   colour: ['sec-grade'],
@@ -462,10 +462,21 @@ function setMobile(on) {
       el.classList.remove('sheet-hidden');
     }
   });
+  // Brand header + Export live in a mobile top bar; undo/redo stay in the preview header (never over the poster).
+  const header = document.querySelector('.app-header');
+  const exportBtn = $('btn-head-export');
+  if (on) {
+    $('m-topbar').append(header, exportBtn);
+  } else {
+    document.querySelector('.sidebar-left').prepend(header);
+    document.querySelector('.head-actions').appendChild(exportBtn);
+  }
   if (!on) { // restore original right-column order
     const right = document.querySelector('.sidebar-right');
     ['sec-compose', 'sec-grade', 'sec-lettering', 'sec-typelayout', 'sec-crop', 'sec-export'].forEach(id => right.appendChild($(id)));
-    document.querySelector('.sidebar-left').insertBefore($('sec-photos'), document.querySelector('.library-note'));
+    const left = document.querySelector('.sidebar-left');
+    left.appendChild($('sec-photos'));
+    left.appendChild($('lib-note'));
   }
   if (on) openSheetTab(activeTab, false);
   requestAnimationFrame(fitCanvas);

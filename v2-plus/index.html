@@ -35,10 +35,11 @@
         <p class="micro-hint">Click a thumbnail or drag it onto a panel.</p>
       </section>
 
-      <div class="library-note"><span class="privacy-dot"></span> Photos stay on this device. Nothing is uploaded.</div>
+      <div class="library-note" id="lib-note"><span class="privacy-dot"></span> Photos stay on this device. Nothing is uploaded.</div>
     </aside>
 
     <main class="preview-area" id="preview-area">
+      <div class="m-topbar" id="m-topbar"></div>
       <div class="preview-head">
         <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="preview-title">NEON LIGHTS</strong></div>
         <div class="head-actions">
@@ -53,10 +54,6 @@
       <div class="canvas-wrapper" id="canvas-wrapper">
         <div class="canvas-stage" id="canvas-stage">
           <canvas id="cover-canvas" width="1920" height="1080" aria-label="Live cover art preview"></canvas>
-          <div class="float-history" role="group" aria-label="History">
-            <button type="button" class="btn icon-btn" id="m-undo" aria-label="Undo" disabled>↶</button>
-            <button type="button" class="btn icon-btn" id="m-redo" aria-label="Redo" disabled>↷</button>
-          </div>
         </div>
       </div>
       <div class="preview-foot"><span><i class="live-dot"></i> LIVE PREVIEW</span><span>DRAG TO REFRAME <b>·</b> SCROLL TO ZOOM</span><span class="preview-credit">MADE WITH NEON PANEL</span></div>
