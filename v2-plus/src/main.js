@@ -84,6 +84,7 @@ export const state = {
     textPosition: 'bottom',
     panelLabels: [],
     layers: defaultLayers(),
+    template: 'classic-neon',
     letteringMode: 'below',
   },
 };
@@ -593,6 +594,11 @@ async function initApp() {
       document.fonts.load('40px "Pacifico"'),
       document.fonts.load('40px "Kaushan Script"'),
       document.fonts.load('30px "Oswald"'),
+      document.fonts.load('40px "Anton"'),
+      document.fonts.load('40px "Archivo Black"'),
+      document.fonts.load('40px "Monoton"'),
+      document.fonts.load('900 40px "Playfair Display"'),
+      document.fonts.load('40px "Saira Stencil One"'),
       document.fonts.ready,
     ]);
   } catch (err) {

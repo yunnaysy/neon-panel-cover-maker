@@ -26,6 +26,53 @@ const SANS_STACK = 'Arial, Helvetica, sans-serif';
 export const TITLE_SAFE_TOP = 0.635;
 const FOOTER_HEIGHT = 0.065;
 
+// Self-hosted OFL poster fonts. `style` is the CSS font prefix used on canvas.
+export const FONTS = [
+  { id: 'bebas',    label: 'Bebas Neue (poster)',      family: '"Bebas Neue", Impact, sans-serif',       style: 'italic 900' },
+  { id: 'anton',    label: 'Anton (heavy condensed)',   family: '"Anton", Impact, sans-serif',            style: '400' },
+  { id: 'archivo',  label: 'Archivo Black (blockbuster)', family: '"Archivo Black", "Arial Black", sans-serif', style: '400' },
+  { id: 'monoton',  label: 'Monoton (retro chrome)',    family: '"Monoton", Impact, sans-serif',          style: '400' },
+  { id: 'playfair', label: 'Playfair Display (movie serif)', family: '"Playfair Display", Georgia, serif', style: '900' },
+  { id: 'kaushan',  label: 'Kaushan Script (brush)',    family: '"Kaushan Script", cursive',              style: '400' },
+  { id: 'pacifico', label: 'Pacifico (neon script)',    family: '"Pacifico", cursive',                    style: '400' },
+  { id: 'oswald',   label: 'Oswald (condensed sans)',   family: '"Oswald", "Bebas Neue", sans-serif',     style: '600' },
+  { id: 'stencil',  label: 'Saira Stencil (billing)',   family: '"Saira Stencil One", "Oswald", sans-serif', style: '400' },
+];
+const LAYER_DEFAULT_FONT = { title: 'bebas', subtitle: 'kaushan', billing: 'oswald' };
+export function fontFor(layer, L) { return FONTS.find(f => f.id === (L && L.font)) || FONTS.find(f => f.id === LAYER_DEFAULT_FONT[layer]); }
+function fontStr(font, size, override) { return `${override || font.style} ${Math.round(size)}px ${font.family}`; }
+
+// One-tap lettering templates. 'Classic Neon' is exactly the v2 default.
+export const LETTERING_TEMPLATES = [
+  { id: 'classic-neon', name: 'Classic Neon', layers: {} },
+  { id: 'chrome-blockbuster', name: 'Chrome Blockbuster', layers: {
+    title: { font: 'archivo', effect: 'chrome', align: 'center', x: 47, y: 79.5, spacing: 1, lineHeight: 0.95 },
+    subtitle: { font: 'playfair', effect: 'plain', align: 'center', x: 47, y: 88.5, spacing: 6, upper: true, sizeScale: 0.62 },
+    billing: { font: 'oswald', align: 'center', x: 47, spacing: 3 } } },
+  { id: 'neon-script-sign', name: 'Neon Script Sign', layers: {
+    title: { font: 'pacifico', effect: 'neon-tube', upper: false, x: 6, y: 79, lineHeight: 1.1 },
+    subtitle: { font: 'oswald', effect: 'plain', upper: true, spacing: 9, x: 6.5, y: 90.5, sizeScale: 0.55 },
+    billing: { font: 'oswald', spacing: 2 } } },
+  { id: 'minimal-noir', name: 'Minimal Noir', layers: {
+    title: { font: 'playfair', effect: 'flat', spacing: 4, x: 6, y: 80 },
+    subtitle: { font: 'oswald', effect: 'plain', upper: true, spacing: 10, x: 6.2, y: 90.5, sizeScale: 0.5 },
+    billing: { font: 'stencil', spacing: 2 } } },
+  { id: 'retro-arcade', name: 'Retro Arcade', layers: {
+    title: { font: 'monoton', effect: 'neon-tube', spacing: 2, align: 'center', x: 47, y: 79.5 },
+    subtitle: { font: 'pacifico', effect: 'glow', align: 'center', x: 47, y: 90.5, sizeScale: 0.8 },
+    billing: { font: 'stencil', align: 'center', x: 47, spacing: 2 } } },
+  { id: 'stacked-bold', name: 'Stacked Bold', layers: {
+    title: { font: 'anton', effect: 'outline', spacing: 0.5, lineHeight: 0.86, x: 5.5, y: 80 },
+    subtitle: { font: 'kaushan', effect: 'glow', x: 6, y: 90.8 },
+    billing: { font: 'oswald', spacing: 1.5 } } },
+];
+export function templateLayers(id) {
+  const t = LETTERING_TEMPLATES.find(item => item.id === id) || LETTERING_TEMPLATES[0];
+  const base = defaultLayers();
+  for (const k of Object.keys(base)) Object.assign(base[k], t.layers[k] || {});
+  return base;
+}
+
 export const LAYER_RANGES = {
   title:    { size: [48, 220], spacing: [-5, 20], lineHeight: [0.7, 1.5] },
   subtitle: { size: [18, 80],  spacing: [-3, 12], lineHeight: [0.8, 1.8] },
@@ -34,9 +81,9 @@ export const LAYER_RANGES = {
 
 export function defaultLayers() {
   return {
-    title:    { size: null, spacing: 0, lineHeight: 0.95, x: null, y: null, align: 'left', autoFit: true },
-    subtitle: { size: null, spacing: 0, lineHeight: 1.1,  x: null, y: null, align: 'left', autoFit: true },
-    billing:  { size: null, spacing: 0, lineHeight: 1.25, x: null, y: null, align: 'left', autoFit: true },
+    title:    { size: null, spacing: 0, lineHeight: 0.95, x: null, y: null, align: 'left', autoFit: true, font: 'bebas', effect: 'gradient', upper: true },
+    subtitle: { size: null, spacing: 0, lineHeight: 1.1,  x: null, y: null, align: 'left', autoFit: true, font: 'kaushan', effect: 'glow', upper: false },
+    billing:  { size: null, spacing: 0, lineHeight: 1.25, x: null, y: null, align: 'left', autoFit: true, font: 'oswald' },
   };
 }
 
@@ -72,11 +119,14 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
     panelLabels = [],
     badgeText = 'ORIGINAL',
   } = typo;
-  const layers = { ...defaultLayers(), ...(typo.layers || {}) };
+  const dl = defaultLayers();
+  const layers = {};
+  for (const k of Object.keys(dl)) layers[k] = { ...dl[k], ...((typo.layers || {})[k] || {}) };
   const theme = TITLE_COLOR_THEMES.find(item => item.id === titleTheme) || TITLE_COLOR_THEMES[0];
   const poster = getColorPreset(typo.colorPreset).poster;
   const gradeTheme = { ...theme, stops: poster.titleStops, glow: poster.titleGlow, subtitleColor: poster.subtitleColor };
-  const titleLines = String(mainTitle || '').toUpperCase().split(/\s*(?:\/|\n)\s*/).map(t => t.trim()).filter(Boolean);
+  const titleRaw = String(mainTitle || '');
+  const titleLines = (layers.title.upper === false ? titleRaw : titleRaw.toUpperCase()).split(/\s*(?:\/|\n)\s*/).map(t => t.trim()).filter(Boolean);
   const isTop = textPosition === 'top';
   const u = logicalUnit(canvasW, canvasH);
   const info = { boxes: {}, effective: {}, overflow: {} };
@@ -104,23 +154,32 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
   // --- Title layer ---
   if (titleLines.length) {
     const L = layers.title;
-    const defSize = fitTitle(ctx, titleLines.reduce((a, b) => (a.length > b.length ? a : b)), canvasW, canvasH) / u;
+    const font = fontFor('title', L);
+    const longest = titleLines.reduce((a, b) => (a.length > b.length ? a : b));
+    const defSize = fitTitle(ctx, longest, canvasW, canvasH, font) / u;
     let size = clamp(L.size ?? defSize, ...LAYER_RANGES.title.size) * u;
     const x = (L.x ?? 5.5) / 100 * canvasW;
     const y = (L.y ?? ((bandTop + bandH * 0.56) / canvasH * 100)) / 100 * canvasH;
     const spacing = L.spacing * u;
-    const room = roomFor(L.align, x, canvasW);
-    ctx.font = `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`;
+    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * (L.align === 'center' ? 0.7 : 0.765));
+    ctx.font = fontStr(font, size);
     setSpacing(ctx, spacing);
     let width = measureLines(ctx, titleLines);
     if (width > room) {
-      if (L.autoFit) { size *= room / width * 0.995; ctx.font = `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`; width = measureLines(ctx, titleLines); }
+      if (L.autoFit) { size *= room / width * 0.995; ctx.font = fontStr(font, size); width = measureLines(ctx, titleLines); }
       else info.overflow.title = true;
+    }
+    // Keep the title block inside the band so it never touches the quote line or photos (shrink only).
+    if (L.autoFit) {
+      const inkH = titleLines.reduce((m, line) => { const t = ctx.measureText(line); return Math.max(m, t.actualBoundingBoxAscent + t.actualBoundingBoxDescent); }, 0);
+      const blockH = inkH + size * L.lineHeight * (titleLines.length - 1);
+      const maxH = (footerTop - bandTop) * 0.56;
+      if (blockH > maxH) { size *= maxH / blockH; ctx.font = fontStr(font, size); width = measureLines(ctx, titleLines); }
     }
     setSpacing(ctx, 0);
     const lh = size * L.lineHeight;
     const startY = y - lh * (titleLines.length - 1) / 2;
-    titleLines.forEach((line, i) => drawMainTitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, canvasW, L.align, spacing));
+    titleLines.forEach((line, i) => drawMainTitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, canvasW, L.align, spacing, font, L.effect));
     info.effective.title = { size: size / u, x: x / canvasW * 100, y: y / canvasH * 100 };
     info.boxes.title = alignedBox(L.align, x, startY - size * 0.55, width, lh * (titleLines.length - 1) + size * 1.1);
   }
@@ -128,23 +187,24 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
   // --- Subtitle layer ---
   if (subtitle && subtitle.trim()) {
     const L = layers.subtitle;
-    let size = clamp(L.size ?? (canvasH * 0.061 / u), ...LAYER_RANGES.subtitle.size) * u;
+    const font = fontFor('subtitle', L);
+    let size = clamp(L.size ?? (canvasH * 0.061 * (L.sizeScale || 1) / u), ...LAYER_RANGES.subtitle.size) * u;
     const x = (L.x ?? 6) / 100 * canvasW;
     const y = (L.y ?? ((bandTop + bandH * 0.91) / canvasH * 100)) / 100 * canvasH;
     const spacing = L.spacing * u;
-    const lines = subtitle.trim().split(/\n/);
+    const lines = (L.upper ? subtitle.trim().toUpperCase() : subtitle.trim()).split(/\n/);
     const room = Math.min(roomFor(L.align, x, canvasW), canvasW * 0.9);
-    ctx.font = `400 ${Math.round(size)}px ${SCRIPT_FONT_STACK}`;
+    ctx.font = fontStr(font, size);
     setSpacing(ctx, spacing);
     let width = measureLines(ctx, lines);
     if (width > room) {
-      if (L.autoFit) { size *= room / width * 0.995; ctx.font = `400 ${Math.round(size)}px ${SCRIPT_FONT_STACK}`; width = measureLines(ctx, lines); }
+      if (L.autoFit) { size *= room / width * 0.995; ctx.font = fontStr(font, size); width = measureLines(ctx, lines); }
       else info.overflow.subtitle = true;
     }
     setSpacing(ctx, 0);
     const lh = size * L.lineHeight;
     const startY = y - lh * (lines.length - 1) / 2;
-    lines.forEach((line, i) => drawScriptSubtitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, L.align, spacing));
+    lines.forEach((line, i) => drawScriptSubtitle(ctx, line, x, startY + i * lh, Math.round(size), gradeTheme, L.align, spacing, font, L.effect));
     info.effective.subtitle = { size: size / u, x: x / canvasW * 100, y: y / canvasH * 100 };
     info.boxes.subtitle = alignedBox(L.align, x, startY - size * 0.6, width, lh * (lines.length - 1) + size * 1.2);
   }
@@ -155,12 +215,13 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
     const stripH = canvasH * FOOTER_HEIGHT;
     const tag = String(tagline || '').trim().toUpperCase();
     const lines = [tag, 'AN ORIGINAL NEON PANEL COVER  ·  MADE FOR THE NIGHT'].filter(Boolean);
+    const font = fontFor('billing', L);
     let size = clamp(L.size ?? (stripH * 0.37 / u), ...LAYER_RANGES.billing.size) * u;
     const x = (L.x ?? 7.5) / 100 * canvasW;
     const y = (L.y ?? ((canvasH - stripH * 0.4) / canvasH * 100)) / 100 * canvasH;
     const spacing = (L.spacing + 1.2) * u;
-    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * 0.8);
-    ctx.font = `600 ${Math.round(size)}px ${CONDENSED_FONT_STACK}`;
+    const room = Math.min(roomFor(L.align, x, canvasW), canvasW * (L.align === 'center' ? 0.66 : 0.8));
+    ctx.font = fontStr(font, size);
     setSpacing(ctx, spacing);
     let width = ctx.measureText(lines[0] || '').width;
     if (width > room) {
@@ -171,7 +232,8 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH) {
     const top = y - lh * 0.5;
     ctx.textAlign = L.align;
     ctx.textBaseline = 'middle';
-    ctx.font = `600 ${Math.round(size)}px ${CONDENSED_FONT_STACK}`;
+    ctx.font = fontStr(font, size);
+    setSpacing(ctx, spacing);
     ctx.fillStyle = '#f6f2f8';
     if (lines[0]) ctx.fillText(lines[0], x, top);
     const small = Math.max(6, size * 0.42);
@@ -256,11 +318,11 @@ function drawTitleBand(ctx, w, h, poster, over = false) {
   drawPalmSilhouette(ctx, w * 0.975, footerTop - h * 0.012, h * 0.11, poster.accentColor);
 }
 
-function fitTitle(ctx, text, w, h) {
+function fitTitle(ctx, text, w, h, font) {
   const maxWidth = w * 0.765;
   let size = h * 0.22;
   while (size > 1) {
-    ctx.font = `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`;
+    ctx.font = font ? fontStr(font, size) : `italic 900 ${Math.round(size)}px ${DISPLAY_FONT_STACK}`;
     const textWidth = ctx.measureText(text).width;
     if (textWidth <= maxWidth) break;
     size = Math.max(1, size * maxWidth / textWidth * 0.995);
@@ -268,14 +330,38 @@ function fitTitle(ctx, text, w, h) {
   return Math.round(size);
 }
 
-function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW, align = 'left', spacing = 0) {
+function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW, align = 'left', spacing = 0, font = null, effect = 'gradient') {
   ctx.save();
-  ctx.font = `italic 900 ${fontSize}px ${DISPLAY_FONT_STACK}`;
+  ctx.font = font ? fontStr(font, fontSize) : `italic 900 ${fontSize}px ${DISPLAY_FONT_STACK}`;
   setSpacing(ctx, spacing);
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
+
+  if (effect === 'neon-tube') {
+    // Glowing tube lettering: coloured halo + hot white core.
+    ctx.lineWidth = Math.max(2, fontSize * 0.05);
+    ctx.strokeStyle = theme.glow;
+    ctx.shadowColor = theme.glow;
+    for (const blur of [fontSize * 0.45, fontSize * 0.2]) { ctx.shadowBlur = blur; ctx.strokeText(text, x, y); }
+    ctx.shadowBlur = fontSize * 0.12;
+    ctx.fillStyle = theme.stops[1] || '#ffffff';
+    ctx.fillText(text, x, y);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.88)';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
+  if (effect === 'flat') {
+    ctx.shadowColor = 'rgba(0,0,0,.55)';
+    ctx.shadowBlur = fontSize * 0.12;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
 
   const depth = Math.max(7, Math.round(fontSize * 0.09));
   for (let d = depth; d > 0; d--) {
@@ -285,21 +371,30 @@ function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW, align = 'left'
   }
 
   const outline = Math.max(5, fontSize * 0.085);
-  ctx.strokeStyle = theme.outline;
+  ctx.strokeStyle = effect === 'chrome' ? '#0d0b14' : theme.outline;
   ctx.lineWidth = outline;
   ctx.strokeText(text, x, y);
 
   ctx.shadowColor = theme.glow;
   ctx.shadowBlur = Math.min(fontSize * 0.22, canvasW * 0.035);
-  ctx.strokeStyle = theme.outline;
   ctx.lineWidth = outline * 0.55;
   ctx.strokeText(text, x, y);
   ctx.shadowBlur = 0;
 
   const fill = ctx.createLinearGradient(0, y - fontSize * 0.55, 0, y + fontSize * 0.48);
-  theme.stops.forEach((color, index) => {
-    fill.addColorStop(index / (theme.stops.length - 1), color);
-  });
+  const stops = effect === 'chrome'
+    ? ['#ffffff', '#dfe5f2', '#8a93ab', '#3d4458', '#c9d1e4', '#ffffff']
+    : theme.stops;
+  stops.forEach((color, index) => fill.addColorStop(index / (stops.length - 1), color));
+  if (effect === 'outline') {
+    ctx.lineWidth = Math.max(2, fontSize * 0.035);
+    ctx.strokeStyle = fill;
+    ctx.fillStyle = 'rgba(14, 8, 20, .92)';
+    ctx.fillText(text, x, y);
+    ctx.strokeText(text, x, y);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = fill;
   ctx.fillText(text, x, y);
 
@@ -309,16 +404,22 @@ function drawMainTitle(ctx, text, x, y, fontSize, theme, canvasW, align = 'left'
   ctx.restore();
 }
 
-function drawScriptSubtitle(ctx, text, x, y, size, theme, align = 'left', spacing = 0) {
+function drawScriptSubtitle(ctx, text, x, y, size, theme, align = 'left', spacing = 0, font = null, effect = 'glow') {
   ctx.save();
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
-  ctx.font = `400 ${size}px ${SCRIPT_FONT_STACK}`;
+  ctx.font = font ? fontStr(font, size) : `400 ${size}px ${SCRIPT_FONT_STACK}`;
   setSpacing(ctx, spacing);
   ctx.lineWidth = Math.max(2, size * 0.075);
   ctx.lineJoin = 'round';
   ctx.strokeStyle = 'rgba(24, 9, 26, .9)';
   ctx.strokeText(text, x, y);
+  if (effect === 'plain') {
+    ctx.fillStyle = theme.subtitleColor;
+    ctx.fillText(text, x, y);
+    ctx.restore();
+    return;
+  }
   ctx.shadowColor = theme.subtitleColor;
   ctx.shadowBlur = size * 0.65;
   ctx.fillStyle = theme.subtitleColor;

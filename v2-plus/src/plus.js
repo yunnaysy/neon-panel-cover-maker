@@ -2,7 +2,7 @@
 // position, drag + corner resize, 9-position grid, auto-fit), colour scope
 // (entire poster / selected panel), and the mobile bottom sheet.
 
-import { LAYER_RANGES, defaultLayers, logicalUnit } from './typography.js';
+import { LAYER_RANGES, defaultLayers, logicalUnit, FONTS, LETTERING_TEMPLATES, templateLayers, fontFor, drawCoverTypography } from './typography.js';
 import { computePanelPixelRects } from './layouts.js';
 
 let api = null;
@@ -147,6 +147,10 @@ function syncTypeControls() {
   setPair('ty-x', L.x ?? e.x);
   setPair('ty-y', L.y ?? e.y);
   $('ty-autofit').checked = L.autoFit !== false;
+  const fsel = $('ty-font');
+  if (fsel && document.activeElement !== fsel) fsel.value = fontFor(selectedLayer, L).id;
+  const tid = api.state.typography.template || 'classic-neon';
+  document.querySelectorAll('.tpl-card').forEach(c => c.classList.toggle('active', c.dataset.tpl === tid));
   document.querySelectorAll('.layer-seg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.layer === selectedLayer));
   const mode = api.state.typography.letteringMode || 'below';
   document.querySelectorAll('.mode-seg .seg-btn').forEach(b => { b.classList.toggle('active', b.dataset.mode === mode); b.setAttribute('aria-checked', b.dataset.mode === mode); });
@@ -183,11 +187,53 @@ function initTypeControls() {
   bindPair('ty-x', v => { const e = eff(selectedLayer); updateLayer({ x: v, y: layers()[selectedLayer].y ?? e.y }); });
   bindPair('ty-y', v => { const e = eff(selectedLayer); updateLayer({ y: v, x: layers()[selectedLayer].x ?? e.x }); });
   $('ty-autofit').addEventListener('change', (e) => updateLayer({ autoFit: e.target.checked }));
+  const fsel = $('ty-font');
+  fsel.innerHTML = FONTS.map(f => `<option value="${f.id}">${f.label}</option>`).join('');
+  fsel.addEventListener('change', () => updateLayer({ font: fsel.value }));
+  initTemplates();
   document.querySelectorAll('#pos-grid button').forEach(b => b.addEventListener('click', () => {
     updateLayer({ x: GRID_X[b.dataset.c], y: GRID_Y[b.dataset.r], align: ALIGNS[b.dataset.c] });
   }));
-  $('ty-reset').addEventListener('click', () => { layers()[selectedLayer] = defaultLayers()[selectedLayer]; api.redraw(); syncTypeControls(); });
-  $('ty-reset-all').addEventListener('click', () => { api.state.typography.layers = defaultLayers(); api.redraw(); syncTypeControls(); });
+  $('ty-reset').addEventListener('click', () => {
+    const t = api.state.typography;
+    layers()[selectedLayer] = templateLayers(t.template || 'classic-neon')[selectedLayer]; api.redraw(); syncTypeControls();
+  });
+  $('ty-reset-all').addEventListener('click', () => { api.state.typography.layers = defaultLayers(); api.state.typography.template = 'classic-neon'; api.redraw(); syncTypeControls(); });
+}
+
+// ---------------------------------------------------------------- lettering templates
+export function applyTemplate(id) {
+  const t = api.state.typography;
+  t.layers = templateLayers(id);
+  t.template = id;
+  api.redraw();
+  syncTypeControls();
+}
+
+async function renderTemplateThumbs() {
+  try { await Promise.all(FONTS.map(f => document.fonts.load(`${f.style} 40px ${f.family}`))); } catch {}
+  const W = 1200, H = 675;
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const octx = off.getContext('2d');
+  for (const card of document.querySelectorAll('.tpl-card')) {
+    octx.clearRect(0, 0, W, H);
+    octx.fillStyle = '#16121c';
+    octx.fillRect(0, 0, W, H);
+    const typo = { ...api.state.typography, panelLabels: [], layers: templateLayers(card.dataset.tpl), colorPreset: api.state.colorPreset };
+    drawCoverTypography(octx, typo, W, H);
+    const c = card.querySelector('canvas');
+    const top = Math.round(H * 0.62);
+    c.getContext('2d').drawImage(off, 0, top, W, H - top, 0, 0, c.width, c.height);
+  }
+}
+
+function initTemplates() {
+  const row = $('tpl-row');
+  if (!row) return;
+  row.innerHTML = LETTERING_TEMPLATES.map(t => `<button type="button" class="tpl-card" data-tpl="${t.id}" aria-label="Apply ${t.name} lettering template"><canvas width="236" height="80"></canvas><span>${t.name}</span></button>`).join('');
+  row.querySelectorAll('.tpl-card').forEach(c => c.addEventListener('click', () => applyTemplate(c.dataset.tpl)));
+  renderTemplateThumbs();
 }
 
 // ---------------------------------------------------------------- on-canvas text drag / resize
@@ -511,6 +557,7 @@ function syncAll() {
 
 export function initPlus(a) {
   api = a;
+  window.__neonPlus = { info: () => typoInfo, applyTemplate: (id) => applyTemplate(id), templates: LETTERING_TEMPLATES.map(t => t.id) };
   initHistory();
   initTypeControls();
   import('./colorGrades.js').then(({ COLOR_PRESETS }) => { initColour(COLOR_PRESETS); syncColourControls(); });
