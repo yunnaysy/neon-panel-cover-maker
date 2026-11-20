@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090b14">
+  <meta name="description" content="A private, offline poster studio for NEON COAST.">
+  <title>Neon Panel — Poster Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090b14'/%3E%3Cpath d='M10 48 30 12 54 48Z' fill='%23ff4ea0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="studio-container">
+    <header class="app-header">
+      <a class="brand" href="./" aria-label="Neon Panel home">
+        <span class="brand-mark">NP</span>
+        <span><strong>NEON PANEL</strong><small>NEON COAST · POSTER STUDIO</small></span>
+      </a>
+      <nav class="step-flow" aria-label="Three step workflow">
+        <span class="flow-step current" aria-label="Step 1: Photos"><b>1</b><span>Photos</span></span><i></i>
+        <span class="flow-step" aria-label="Step 2: Words"><b>2</b><span>Words</span></span><i></i>
+        <span class="flow-step" aria-label="Step 3: Export"><b>3</b><span>Export</span></span>
+      </nav>
+      <div class="header-actions">
+        <span class="offline-label"><i></i> OFFLINE</span>
+        <button type="button" class="icon-button" id="undo-button" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶</button>
+        <button type="button" class="icon-button" id="redo-button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>↷</button>
+      </div>
+    </header>
+
+    <div class="studio-grid" id="studio-grid" data-active-pane="photos">
+      <aside class="photo-sidebar" id="photos-pane" aria-label="Photo library">
+        <div class="side-heading"><div><span class="eyebrow">STEP 1</span><h2>Build your cast</h2></div><span class="library-count">16 PHOTOS</span></div>
+        <label class="upload-dropzone" id="dropzone" for="photo-input">
+          <input type="file" id="photo-input" accept="image/*">
+          <span class="upload-symbol">+</span><span><strong>Add your photo</strong><small>JPG · PNG · WEBP · stays here</small></span>
+          <span class="upload-arrow">↗</span>
+        </label>
+        <button type="button" class="btn btn-cast" id="btn-load-cast">
+          <span class="cast-icon">▦</span><span><strong>Load sample cast</strong><small>Eight faces + coastal scenes</small></span><b>→</b>
+        </button>
+        <div class="sample-grid" id="sample-grid" aria-label="Sample photo library"></div>
+        <p class="side-hint">Choose a panel, then tap a photo. Drag a photo onto any panel to replace it.</p>
+        <div class="privacy-note"><i></i> Your photos never leave this device.</div>
+      </aside>
+
+      <main class="preview-area" id="preview-area">
+        <div class="preview-head">
+          <div><span class="eyebrow">LIVE ONE-SHEET</span><strong id="preview-title">TIDE RUNNERS</strong></div>
+          <div class="format-picker" id="aspect-picker" aria-label="Canvas format">
+            <button type="button" class="format-button active" data-aspect="16:9" data-w="1920" data-h="1080">16:9</button>
+            <button type="button" class="format-button" data-aspect="4:5" data-w="1080" data-h="1350">4:5</button>
+            <button type="button" class="format-button" data-aspect="1:1" data-w="1080" data-h="1080">1:1</button>
+          </div>
+        </div>
+        <div class="canvas-wrapper" id="canvas-wrapper"><canvas id="cover-canvas" width="1920" height="1080" aria-label="Live poster preview"></canvas></div>
+        <div class="preview-foot"><span><i></i> LIVE PREVIEW</span><span>DRAG TO REFRAME · SLIDER TO ZOOM</span><span>MADE WITH NEON PANEL</span></div>
+      </main>
+
+      <aside class="controls-sidebar" aria-label="Poster controls">
+        <section class="control-pane" id="layout-pane" data-pane="layout">
+          <div class="pane-heading"><div><span class="eyebrow">STEP 1 · COMPOSITION</span><h2>Make the frame</h2></div><span class="autosave"><i></i> READY</span></div>
+          <div class="control-label">LAYOUT</div>
+          <div class="layout-grid" id="layout-picker" role="radiogroup" aria-label="Poster layout"></div>
+          <div class="section-rule"></div>
+          <div class="section-heading"><h3 id="active-panel-title">Panel 1</h3><span class="badge" id="active-panel-indicator">P1</span></div>
+          <div class="panel-pills" id="panel-pills-container" aria-label="Select panel"></div>
+          <div class="button-row">
+            <button type="button" class="btn btn-subtle" id="btn-make-hero">Make hero</button>
+            <button type="button" class="btn btn-subtle" id="btn-focus-mode">Set face focus</button>
+          </div>
+          <div class="slider-row"><label for="zoom-slider">Zoom</label><input id="zoom-slider" type="range" min="1" max="2.4" step="0.05" value="1"><output id="zoom-val">1.0×</output></div>
+          <div class="button-row">
+            <button type="button" class="btn btn-subtle" id="btn-fill-all">Use photo in all panels</button>
+            <button type="button" class="btn btn-subtle" id="btn-reset-crop">Reset crop</button>
+          </div>
+          <div class="section-rule"></div>
+          <div class="section-heading"><h3>Cast tag</h3><label class="switch-label"><input type="checkbox" id="tag-toggle" checked><span>Show</span></label></div>
+          <label class="field-label" for="role-input">ROLE FOR THIS PANEL</label>
+          <input class="text-field" id="role-input" maxlength="24" value="THE WHEELWOMAN">
+          <p class="micro-hint">Tags sit on the frame, away from faces and the title.</p>
+        </section>
+
+        <section class="control-pane" id="words-pane" data-pane="words">
+          <div class="pane-heading"><div><span class="eyebrow">STEP 2 · WORDS</span><h2>Write the story</h2></div><span class="type-mark">Aa</span></div>
+          <label class="field-label" for="title-input">MAIN TITLE · CHROME ON ART</label>
+          <input class="text-field title-input" id="title-input" maxlength="36" value="TIDE RUNNERS" placeholder="Your title">
+          <label class="field-label" for="subtitle-input">NEON SCRIPT SUBTITLE</label>
+          <input class="text-field" id="subtitle-input" maxlength="44" value="Neon Coast Nights" placeholder="A short line">
+          <div class="split-fields">
+            <div><label class="field-label" for="quote-input">REVIEW QUOTE</label><input class="text-field" id="quote-input" maxlength="56" value="A wild ride from first light to last call"></div>
+            <div><label class="field-label" for="source-input">REVIEW SOURCE</label><input class="text-field" id="source-input" maxlength="28" value="COASTLINE WEEKLY"></div>
+          </div>
+          <label class="field-label" for="billing-input">BILLING BLOCK</label>
+          <textarea class="text-field billing-field" id="billing-input" rows="3" maxlength="180">A NEON PANEL PICTURE · STARRING MIRA SOL, JUNE MERCER, LEO VALE · MUSIC BY ORLA REED · WRITTEN BY KIT MARLOW · DIRECTED BY ARDEN BLUE</textarea>
+          <div class="split-fields">
+            <div><label class="field-label" for="release-input">RELEASE LINE</label><input class="text-field" id="release-input" maxlength="32" value="COMING SOON"></div>
+            <div><label class="field-label" for="badge-input">ROUND SEAL</label><input class="text-field" id="badge-input" maxlength="20" value="COAST EDITION"></div>
+          </div>
+        </section>
+
+        <section class="control-pane" id="look-pane" data-pane="look">
+          <div class="pane-heading"><div><span class="eyebrow">ART DIRECTION</span><h2>Choose a color story</h2></div><span class="grade-value" id="grade-val">78%</span></div>
+          <div class="preset-grid" id="preset-picker"></div>
+          <div class="slider-row grade-slider"><label for="grade-intensity">Intensity</label><input type="range" id="grade-intensity" min="0" max="1" step="0.05" value="0.78"><output id="grade-output">78%</output></div>
+          <div class="look-note"><b>PRINT FINISH</b><span>Soft vignette · fine grain · clean keylines</span></div>
+        </section>
+
+        <section class="control-pane export-pane" id="export-pane" data-pane="export">
+          <div class="pane-heading"><div><span class="eyebrow">STEP 3 · EXPORT</span><h2>Share your poster</h2></div><span class="png-chip">PNG</span></div>
+          <button type="button" class="btn btn-export-all" id="export-all"><span>Export all 3</span><small>1080 × 1080 · 1080 × 1350 · 1920 × 1080</small><b>↓</b></button>
+          <div class="single-exports">
+            <button type="button" class="btn btn-single" id="export-landscape" data-w="1920" data-h="1080">1920 × 1080 <small>LANDSCAPE</small></button>
+            <button type="button" class="btn btn-single" id="export-portrait" data-w="1080" data-h="1350">1080 × 1350 <small>PORTRAIT</small></button>
+            <button type="button" class="btn btn-single" id="export-square" data-w="1080" data-h="1080">1080 × 1080 <small>SQUARE</small></button>
+          </div>
+          <p id="export-status" class="export-status" role="status" aria-live="polite">Ready to make your poster.</p>
+        </section>
+      </aside>
+    </div>
+
+    <nav class="mobile-tabs" id="mobile-tabs" aria-label="Editor sections">
+      <button type="button" data-tab="photos" class="active"><span>▣</span>Photos</button>
+      <button type="button" data-tab="layout"><span>▦</span>Layout</button>
+      <button type="button" data-tab="words"><span>✎</span>Words</button>
+      <button type="button" data-tab="look"><span>◉</span>Look</button>
+      <button type="button" data-tab="export"><span>↓</span>Export</button>
+    </nav>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
