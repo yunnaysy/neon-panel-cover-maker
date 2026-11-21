@@ -8,12 +8,13 @@ Neon Panel is a private-by-design poster maker inspired by sunlit coastal cities
 
 ## What's new
 
+- **Golden Hour by default.** The studio opens on the v2 warm orange/peach look with the Classic Neon lettering template; Magenta Dusk remains available in the grade picker.
 - **Photos always stay visible.** Lettering sits below the photos by default: every layout is reflowed into the area above the solid v2 title band, using the photo area's own aspect ratio. A second mode, *Lettering over photos*, uses the full canvas with a soft top-transparent scrim.
 - **Undo / redo.** Snapshot history (photos kept by reference, capped at 80 steps), header buttons next to Export PNG, and Ctrl/Cmd+Z, Shift+Ctrl/Cmd+Z and Ctrl+Y. Shortcuts are ignored while typing in text fields.
-- **Real lettering controls.** Title, Subtitle and Billing each have size, spacing, line-height, X/Y position, alignment, a 3 × 3 quick-position grid, auto-fit and a font picker. Drag text on the poster to move it; drag the lavender corner handle to resize proportionally. Dashed outlines are preview-only.
+- **Poster lettering + lettering size & position.** Card 04 holds the title, subtitle, quote, seal and tagline text fields. Card 05 holds placement, template cards and the Title/Subtitle/Billing controls: size, spacing, line-height, X/Y position, alignment, a 3 × 3 quick-position grid, auto-fit and font picker. Drag text on the poster to move it; drag the lavender corner handle to resize proportionally. The dashed outline appears only while hovering, dragging or editing lettering, and is preview-only.
 - **Nine self-hosted poster fonts and six one-tap templates.** Classic Neon, Chrome Blockbuster, Neon Script Sign, Minimal Noir, Retro Arcade and Stacked Bold. Template cards render the real title band in each font, and applying one is a single undo step.
-- **Colour-grade scope.** Apply a look to the *Entire poster* or only the *Selected panel*. The global grade is applied first, then the panel look is drawn on top. A preview-only PANEL label and prev/next arrows make the target clear.
-- **Tablet and phone layout.** A dedicated neon top bar, a poster that fits its container through `ResizeObserver`, and a fixed bottom control sheet with three heights (15 / 55 / 88%) and Photos, Layout, Type, Colour and Export tabs. No horizontal scrolling at any width.
+- **Colour-grade scope.** Apply a look to the *Entire poster* or only the *Selected panel*. The global grade is applied first, then the panel look is drawn on top. The panel highlight and preview-only PANEL label appear only in the Selected panel scope.
+- **Tablet and phone layout.** A dedicated neon top bar with a three-line brand block, a poster that fits its container through `ResizeObserver`, and a fixed bottom control sheet that starts in a short peek state. Tapping a tab opens it to 55%, and the handle cycles peek → 55% → 88%. Photos, Layout, Type, Colour and Export tabs. No horizontal scrolling at any width.
 
 ## Features
 
@@ -40,7 +41,7 @@ MAKEFUN_OUTPUT_DIR=out node main.ts
 
 ### Tests
 
-The Playwright checks live in `tests/playwright.test.mjs`. They cover six viewports (1440×900, 1024×768, 768×1024, 640×1024, 390×844, 360×740), no horizontal scroll, zero console errors, brand and v2 controls at every width, undo/redo, selected-panel grading, and PNG downloads. They also check all 15 layout × aspect BELOW combinations, all 90 template × layout × aspect combinations, and template undo:
+The Playwright checks live in `tests/playwright.test.mjs`. They cover six viewports (1440×900, 1024×768, 768×1024, 640×1024, 390×844, 360×740), no horizontal scroll, zero console errors, Golden Hour as the default, hidden selection guides at load, hover-only lettering outlines, the mobile peek sheet, gradient Export PNG buttons, undo/redo never intersecting the poster, selected-panel grading, and PNG downloads. They also check all 15 layout × aspect BELOW combinations, all 90 template × layout × aspect combinations, and template undo:
 
 ```bash
 python3 -m http.server 8130 --directory app &

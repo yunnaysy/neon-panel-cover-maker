@@ -60,6 +60,80 @@ async function visibleUndoButton(page) {
 }
 
 // ---------------------------------------------------------------------------
+console.log('\nDefault look and preview selection');
+{
+  const { context, page, errors } = await openPage(1440, 900);
+  const initial = await page.evaluate(() => {
+    const app = window.__neonApp;
+    return {
+      preset: app.state.colorPreset,
+      activePreset: document.querySelector('#preset-picker .preset-btn.active')?.dataset.preset,
+      guides: app.previewGuides(),
+      canvasGuide: document.getElementById('cover-canvas').dataset.letteringGuide,
+      canvasPanel: document.getElementById('cover-canvas').dataset.panelGuide,
+    };
+  });
+  check('default colour preset is Golden Hour', () => {
+    assert.equal(initial.preset, 'golden-hour');
+    assert.equal(initial.activePreset, 'golden-hour');
+  });
+  check('no lettering outline or panel highlight is drawn at load', () => {
+    assert.equal(initial.guides.lettering, false);
+    assert.equal(initial.guides.panel, false);
+    assert.equal(initial.canvasGuide, 'false');
+    assert.equal(initial.canvasPanel, 'false');
+  });
+
+  const titlePoint = await page.evaluate(() => {
+    const app = window.__neonApp;
+    const info = app.getTypographyLayout().layers.title;
+    const canvas = document.getElementById('cover-canvas');
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: rect.x + ((info.box.x + info.box.width / 2) / app.state.canvasWidth) * rect.width,
+      y: rect.y + ((info.box.y + info.box.height / 2) / app.state.canvasHeight) * rect.height,
+    };
+  });
+  await page.mouse.move(titlePoint.x, titlePoint.y);
+  await page.waitForTimeout(80);
+  const hovered = await page.evaluate(() => window.__neonApp.previewGuides());
+  check('lettering outline appears on canvas hover', () => {
+    assert.equal(hovered.lettering, true);
+    assert.equal(hovered.panel, false);
+  });
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(80);
+  const left = await page.evaluate(() => window.__neonApp.previewGuides());
+  check('lettering outline hides when the pointer leaves the lettering', () => {
+    assert.equal(left.lettering, false);
+  });
+
+  await page.locator('#title-input').focus();
+  await page.waitForTimeout(80);
+  const focused = await page.evaluate(() => window.__neonApp.previewGuides());
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.waitForTimeout(80);
+  const blurred = await page.evaluate(() => window.__neonApp.previewGuides());
+  check('lettering outline follows lettering-control focus', () => {
+    assert.equal(focused.lettering, true);
+    assert.equal(blurred.lettering, false);
+  });
+
+  await page.locator('#grade-scope [data-scope="panel"]').click();
+  await page.waitForTimeout(60);
+  const panelOn = await page.evaluate(() => window.__neonApp.previewGuides());
+  await page.locator('#grade-scope [data-scope="global"]').click();
+  await page.waitForTimeout(60);
+  const panelOff = await page.evaluate(() => window.__neonApp.previewGuides());
+  check('panel highlight and label show only in Selected panel scope', () => {
+    assert.equal(panelOn.panel, true);
+    assert.equal(panelOff.panel, false);
+  });
+  check('default-look checks have no console errors', () => assert.deepEqual(errors, []));
+  await context.close();
+}
+
+// ---------------------------------------------------------------------------
 console.log('\nResponsive + feature presence');
 for (const [width, height] of VIEWPORTS) {
   const { context, page, errors } = await openPage(width, height);
@@ -128,11 +202,53 @@ for (const [width, height] of VIEWPORTS) {
     if (width <= 900) {
       assert.ok(rects.undo.width >= 44 && rects.undo.height >= 44, 'mobile undo target below 44px');
       assert.ok(rects.redo.width >= 44 && rects.redo.height >= 44, 'mobile redo target below 44px');
+    } else {
+      assert.ok(rects.undo.width <= 40 && rects.undo.height <= 40, 'desktop undo should be an icon-sized square');
+      assert.ok(rects.redo.width <= 40 && rects.redo.height <= 40, 'desktop redo should be an icon-sized square');
     }
   });
 
+  const exportStyle = await page.evaluate(() => {
+    const btn = ['btn-export-preview', 'btn-export-mobile']
+      .map(id => document.getElementById(id))
+      .find(el => el && el.getBoundingClientRect().width > 0);
+    if (!btn) return null;
+    const style = getComputedStyle(btn);
+    return { image: style.backgroundImage, text: btn.innerText, radius: style.borderRadius };
+  });
+  check(`${label} Export PNG uses the bright gradient call-to-action`, () => {
+    assert.ok(exportStyle, 'missing visible Export PNG button');
+    assert.match(exportStyle.text, /Export PNG/);
+    assert.match(exportStyle.text, /↗/);
+    assert.match(exportStyle.image, /linear-gradient/);
+    assert.ok(parseFloat(exportStyle.radius) >= 12, 'Export PNG should be pill-shaped');
+  });
+
+  if (width <= 900) {
+    const sheet = await page.evaluate(() => {
+      const app = window.__neonApp;
+      const el = document.getElementById('mobile-sheet');
+      return {
+        state: app.sheetState(),
+        attr: el?.dataset.state,
+        height: el?.getBoundingClientRect().height,
+        viewport: window.innerHeight,
+      };
+    });
+    check(`${label} bottom sheet starts in peek`, () => {
+      assert.equal(sheet.state, 'peek');
+      assert.equal(sheet.attr, 'peek');
+      assert.ok(sheet.height >= sheet.viewport * 0.15, `sheet ${sheet.height}px is too tall for peek`);
+      assert.ok(sheet.height <= sheet.viewport * 0.22, `sheet ${sheet.height}px is too short for peek`);
+    });
+  }
+
   // Undo then redo restores the title size.
   await activateTab(page, 'type');
+  if (width <= 900) {
+    const opened = await page.evaluate(() => window.__neonApp.sheetState());
+    check(`${label} tapping a tab opens the peek sheet to half`, () => assert.equal(opened, 'half'));
+  }
   const sizeInput = page.locator('#letter-size-number');
   await sizeInput.scrollIntoViewIfNeeded();
   const previous = await sizeInput.inputValue();

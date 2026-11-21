@@ -65,7 +65,7 @@ export function renderCoverArt(canvas, state, options = {}) {
     placement: state.letteringPlacement || 'below',
   });
 
-  if (options.preview) drawPreviewOverlays(ctx, state, w, h, panels);
+  if (options.preview) drawPreviewOverlays(ctx, state, w, h, panels, options);
 }
 
 function drawPhotoLayer(ctx, state, w, h, panels) {
@@ -161,10 +161,11 @@ function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
   ctx.restore();
 }
 
-function drawPreviewOverlays(ctx, state, w, h, panels) {
+function drawPreviewOverlays(ctx, state, w, h, panels, options = {}) {
   const active = state.activePanelIndex;
+  const panelMode = state.gradeScope === 'panel';
 
-  if (active != null && active >= 0 && panels[active]) {
+  if (options.showPanelGuide !== false && panelMode && active != null && active >= 0 && panels[active]) {
     const hp = panels[active];
     ctx.save();
     ctx.strokeStyle = '#66e4eb';
@@ -182,7 +183,7 @@ function drawPreviewOverlays(ctx, state, w, h, panels) {
     ctx.restore();
   }
 
-  if (state.gradeScope === 'panel' && active != null && active >= 0) {
+  if (panelMode && active != null && active >= 0) {
     const panel = panels[active];
     if (panel) {
       const size = Math.max(12, Math.round(Math.min(w, h) * 0.017));
@@ -206,26 +207,26 @@ function drawPreviewOverlays(ctx, state, w, h, panels) {
     }
   }
 
-  // Lavender dashed text boxes: preview only, never exported.
-  const layout = getTypographyLayout(state.typography, w, h, ctx);
-  const selected = state.typography?.selectedLayer || 'title';
-  ctx.save();
-  for (const name of ['title', 'subtitle', 'billing']) {
-    const box = layout.layers[name]?.box;
-    if (!box) continue;
-    const isSelected = name === selected;
-    ctx.strokeStyle = isSelected ? '#bcaeff' : 'rgba(188, 174, 255, .52)';
-    ctx.lineWidth = Math.max(1, w * (isSelected ? 0.0018 : 0.0012));
-    ctx.setLineDash([Math.max(5, w * 0.005), Math.max(4, w * 0.0035)]);
-    ctx.strokeRect(box.x, box.y, box.width, box.height);
-    if (isSelected) {
+  // Lavender dashed outline + handle: only during hover/drag/control focus.
+  if (options.showLetteringGuides) {
+    const layout = getTypographyLayout(state.typography, w, h, ctx);
+    const selected = state.typography?.selectedLayer || 'title';
+    const box = layout.layers[selected]?.box;
+    if (box) {
+      ctx.save();
+      ctx.strokeStyle = '#bcaeff';
+      ctx.lineWidth = Math.max(1, w * 0.0018);
+      ctx.setLineDash([Math.max(5, w * 0.005), Math.max(4, w * 0.0035)]);
+      ctx.strokeRect(box.x, box.y, box.width, box.height);
       const hs = Math.max(9, w * 0.008);
       ctx.setLineDash([]);
       ctx.fillStyle = '#bcaeff';
       ctx.fillRect(box.x + box.width - hs / 2, box.y + box.height - hs / 2, hs, hs);
+      ctx.restore();
     }
   }
-  if (state._snapGuide) {
+  if (state._snapGuide && options.showLetteringGuides) {
+    ctx.save();
     ctx.strokeStyle = 'rgba(188, 174, 255, .8)';
     ctx.lineWidth = Math.max(1, w * 0.0015);
     ctx.setLineDash([Math.max(6, w * 0.006), Math.max(4, w * 0.004)]);
@@ -233,6 +234,6 @@ function drawPreviewOverlays(ctx, state, w, h, panels) {
     ctx.moveTo(w / 2, 0);
     ctx.lineTo(w / 2, h);
     ctx.stroke();
+    ctx.restore();
   }
-  ctx.restore();
 }

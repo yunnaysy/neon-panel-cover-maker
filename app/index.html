@@ -45,24 +45,24 @@
           <p class="app-tagline">Build a city after dark.</p>
           <span class="version-tag">STUDIO 02 <i></i> OFFLINE</span>
         </div>
-        <button type="button" class="btn btn-export-quick" id="btn-export-mobile">Export PNG</button>
+        <button type="button" class="btn btn-export-quick" id="btn-export-mobile">Export PNG <b>↗</b></button>
       </div>
 
       <div class="preview-head">
         <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="preview-title">NEON LIGHTS</strong></div>
         <div class="preview-actions">
           <span class="preview-ratio" id="preview-ratio">16:9 <i></i> 1920 × 1080</span>
-          <button type="button" class="btn icon-btn" id="btn-undo" aria-label="Undo" title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
-          <button type="button" class="btn icon-btn" id="btn-redo" aria-label="Redo" title="Redo (Shift+Ctrl/Cmd+Z)">↷ Redo</button>
-          <button type="button" class="btn btn-export-quick" id="btn-export-preview">Export PNG</button>
+          <button type="button" class="btn icon-btn" id="btn-undo" aria-label="Undo" title="Undo (Ctrl/Cmd+Z)">↶</button>
+          <button type="button" class="btn icon-btn" id="btn-redo" aria-label="Redo" title="Redo (Shift+Ctrl/Cmd+Z)">↷</button>
+          <button type="button" class="btn btn-export-quick" id="btn-export-preview">Export PNG <b>↗</b></button>
         </div>
       </div>
 
       <div class="mobile-preview-head" id="mobile-preview-head">
         <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="mobile-preview-title">NEON LIGHTS</strong></div>
         <div class="mobile-history">
-          <button type="button" class="btn icon-btn" id="btn-undo-mobile" aria-label="Undo" title="Undo">↶</button>
-          <button type="button" class="btn icon-btn" id="btn-redo-mobile" aria-label="Redo" title="Redo">↷</button>
+          <button type="button" class="btn icon-btn" id="btn-undo-mobile" aria-label="Undo" title="Undo (Ctrl/Cmd+Z)">↶</button>
+          <button type="button" class="btn icon-btn" id="btn-redo-mobile" aria-label="Redo" title="Redo (Shift+Ctrl/Cmd+Z)">↷</button>
         </div>
       </div>
 
@@ -87,11 +87,6 @@
           <button type="button" class="btn btn-chip active" data-aspect="16:9" data-w="1920" data-h="1080"><strong>16:9</strong><small>LANDSCAPE</small></button>
           <button type="button" class="btn btn-chip" data-aspect="4:5" data-w="1080" data-h="1350"><strong>4:5</strong><small>PORTRAIT</small></button>
           <button type="button" class="btn btn-chip" data-aspect="1:1" data-w="1080" data-h="1080"><strong>1:1</strong><small>SQUARE</small></button>
-        </div>
-        <div class="control-label">LETTERING PLACEMENT</div>
-        <div class="segmented placement-switch" id="placement-switch" role="group" aria-label="Lettering placement">
-          <button type="button" class="btn seg-btn active" data-placement="below">Lettering below photos</button>
-          <button type="button" class="btn seg-btn" data-placement="over">Lettering over photos</button>
         </div>
       </section>
 
@@ -130,6 +125,19 @@
             <label for="tagline-input">FOOTER TAGLINE</label><input type="text" id="tagline-input" maxlength="50" value="ONE COAST · NO RULES · COMING SOON" placeholder="Footer line">
           </div>
         </div>
+      </section>
+
+      <section class="control-group lettering-size-group" id="lettering-size-group" data-mobile-tab="type">
+        <div class="section-heading"><div><span class="step-index">05</span><span class="group-title">Lettering size &amp; position</span></div><span class="type-mark">Aa</span></div>
+
+        <div class="control-label">LETTERING PLACEMENT</div>
+        <div class="segmented placement-switch" id="placement-switch" role="group" aria-label="Lettering placement">
+          <button type="button" class="btn seg-btn active" data-placement="below">Lettering below photos</button>
+          <button type="button" class="btn seg-btn" data-placement="over">Lettering over photos</button>
+        </div>
+
+        <div class="control-label">LETTERING TEMPLATES</div>
+        <div class="template-cards" id="template-cards" aria-label="Lettering templates"></div>
 
         <div class="control-label">TEXT LAYER</div>
         <div class="segmented layer-tabs" id="layer-tabs" role="group" aria-label="Selected text layer">
@@ -185,14 +193,11 @@
           <button type="button" class="btn btn-quiet btn-sm" id="btn-reset-layer">Reset this layer</button>
         </div>
         <p id="overflow-warning" class="overflow-warning" role="status" hidden>Too wide — reduce the size or turn Auto-fit on.</p>
-
-        <div class="control-label">LETTERING TEMPLATES</div>
-        <div class="template-cards" id="template-cards" aria-label="Lettering templates"></div>
       </section>
 
       <section class="control-group crop-group" id="crop-group" data-mobile-tab="layout">
         <div class="section-heading">
-          <div><span class="step-index">05</span><span class="group-title" id="panel-editor-title">Active panel (P1)</span></div>
+          <div><span class="step-index">06</span><span class="group-title" id="panel-editor-title">Active panel (P1)</span></div>
           <span class="badge" id="active-panel-indicator">P1</span>
         </div>
         <div class="panel-pills" id="panel-pills-container"></div>
@@ -206,7 +211,7 @@
       </section>
 
       <section class="control-group export-section" id="export-group" data-mobile-tab="export">
-        <div class="section-heading"><div><span class="step-index">06</span><span class="group-title">Export cover</span></div><span class="png-chip">PNG</span></div>
+        <div class="section-heading"><div><span class="step-index">07</span><span class="group-title">Export cover</span></div><span class="png-chip">PNG</span></div>
         <div class="export-buttons">
           <button type="button" class="btn btn-export" id="export-landscape" data-w="1920" data-h="1080"><span><strong>1920 × 1080</strong><small>Landscape · 16:9</small></span><b>↗</b></button>
           <button type="button" class="btn btn-export" id="export-portrait" data-w="1080" data-h="1350"><span><strong>1080 × 1350</strong><small>Portrait · 4:5</small></span><b>↗</b></button>

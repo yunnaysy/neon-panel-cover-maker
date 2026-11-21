@@ -7,7 +7,7 @@
   },
   {
     "name": "2-editor.jpg",
-    "query": "?shot=editor&photo=cast&layout=key-art&aspect=16%3A9&preset=magenta-dusk&caption=NEON%20LIGHTS&subtitle=Ocean%20Drive&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
+    "query": "?shot=editor&photo=cast&layout=key-art&aspect=16%3A9&preset=golden-hour&caption=NEON%20LIGHTS&subtitle=Ocean%20Drive&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
     "w": 1440,
     "h": 900
   },
@@ -19,7 +19,7 @@
   },
   {
     "name": "5-mobile.jpg",
-    "query": "?shot=editor&photo=cast&layout=key-art&aspect=16%3A9&preset=magenta-dusk&caption=NEON%20LIGHTS&subtitle=Ocean%20Drive&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
+    "query": "?shot=editor&photo=cast&layout=key-art&aspect=16%3A9&preset=golden-hour&caption=NEON%20LIGHTS&subtitle=Ocean%20Drive&tagline=ONE%20COAST%20%C2%B7%20NO%20RULES%20%C2%B7%20COMING%20SOON",
     "w": 390,
     "h": 844
   }

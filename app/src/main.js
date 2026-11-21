@@ -97,6 +97,7 @@ const libraryNote = $('library-note');
 const compositionGroup = $('composition-group');
 const gradeGroup = $('grade-group');
 const letteringGroup = $('lettering-group');
+const letteringSizeGroup = $('lettering-size-group');
 const cropGroup = $('crop-group');
 const exportGroup = $('export-group');
 
@@ -108,7 +109,7 @@ export const state = {
   hoveredPanelIndex: null,
   panelPhotos: [],
   globalPhoto: null,
-  colorPreset: 'magenta-dusk',
+  colorPreset: 'golden-hour',
   colorIntensity: 0.75,
   gradeScope: 'global',
   letteringPlacement: 'below',
@@ -150,11 +151,26 @@ function resolvePlacement() {
   return state.letteringPlacement || 'below';
 }
 
+const guideUI = { hoveredLettering: false, focusedLettering: false };
+
+function letteringGuidesActive() {
+  return guideUI.focusedLettering || guideUI.hoveredLettering
+    || (!!interaction && (interaction.type === 'move' || interaction.type === 'resize'));
+}
+
 export function redraw() {
   if (canvas.width !== state.canvasWidth) canvas.width = state.canvasWidth;
   if (canvas.height !== state.canvasHeight) canvas.height = state.canvasHeight;
   const isCoverShot = document.body.classList.contains('shot-cover');
-  renderCoverArt(canvas, state, { preview: !isCoverShot });
+  const showLetteringGuides = !isCoverShot && letteringGuidesActive();
+  const showPanelGuide = !isCoverShot && state.gradeScope === 'panel';
+  renderCoverArt(canvas, state, {
+    preview: !isCoverShot,
+    showLetteringGuides,
+    showPanelGuide,
+  });
+  canvas.dataset.letteringGuide = String(showLetteringGuides);
+  canvas.dataset.panelGuide = String(showPanelGuide);
   updateLetteringStatus();
   if (!isCoverShot) updateCanvasDisplaySize();
 }
@@ -696,7 +712,16 @@ function initCanvasInteraction() {
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (!interaction) return;
+    if (!interaction) {
+      const pt = getCanvasCoords(e);
+      const hovering = !!getHitText(pt);
+      if (hovering !== guideUI.hoveredLettering) {
+        guideUI.hoveredLettering = hovering;
+        canvas.style.cursor = hovering ? 'move' : 'crosshair';
+        redraw();
+      }
+      return;
+    }
     const pt = getCanvasCoords(e);
 
     if (interaction.type === 'move') {
@@ -742,6 +767,10 @@ function initCanvasInteraction() {
     const current = interaction;
     interaction = null;
     state._snapGuide = false;
+    if (current.type !== 'pan') {
+      guideUI.hoveredLettering = e.type === 'pointerup' && e.pointerType === 'mouse'
+        && !!getHitText(getCanvasCoords(e));
+    }
     try { canvas.releasePointerCapture?.(e.pointerId); } catch { /* ignore */ }
     if (current.type === 'pan' && !current.moved) {
       state.gradeScope = 'panel';
@@ -754,6 +783,13 @@ function initCanvasInteraction() {
   };
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('pointerleave', () => {
+    if (!interaction && guideUI.hoveredLettering) {
+      guideUI.hoveredLettering = false;
+      canvas.style.cursor = 'crosshair';
+      redraw();
+    }
+  });
 
   canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -872,7 +908,7 @@ function initCaptionControls() {
   });
 
   $('btn-reset-colour')?.addEventListener('click', () => {
-    state.colorPreset = COLOR_PRESETS[0].id;
+    state.colorPreset = 'golden-hour';
     state.colorIntensity = 0.75;
     state.gradeScope = 'global';
     for (const data of state.panelPhotos) {
@@ -955,6 +991,21 @@ function initCaptionControls() {
   $('btn-redo')?.addEventListener('click', redo);
   $('btn-undo-mobile')?.addEventListener('click', undo);
   $('btn-redo-mobile')?.addEventListener('click', redo);
+
+  const updateFocusGuide = () => {
+    const active = document.activeElement;
+    const focused = !!(active && (
+      letteringGroup?.contains(active) || letteringSizeGroup?.contains(active)
+    ));
+    if (focused !== guideUI.focusedLettering) {
+      guideUI.focusedLettering = focused;
+      redraw();
+    }
+  };
+  for (const group of [letteringGroup, letteringSizeGroup]) {
+    group?.addEventListener('focusin', updateFocusGuide);
+    group?.addEventListener('focusout', () => requestAnimationFrame(updateFocusGuide));
+  }
 }
 
 function bindRangePair(prefix, prop, metaMap) {
@@ -1116,9 +1167,9 @@ function initExportButtons() {
 
 // === RESPONSIVE / MOBILE ===
 const mobileQuery = window.matchMedia('(max-width: 900px)');
-const SHEET_SIZES = { collapsed: '15dvh', half: '55dvh', full: '88dvh' };
-const SHEET_CYCLE = ['half', 'full', 'collapsed'];
-let sheetState = 'half';
+const SHEET_SIZES = { peek: '18dvh', half: '55dvh', full: '88dvh' };
+const SHEET_CYCLE = ['peek', 'half', 'full'];
+let sheetState = 'peek';
 
 function updateCanvasDisplaySize() {
   if (document.body.classList.contains('shot-cover')) return;
@@ -1133,7 +1184,7 @@ function updateCanvasDisplaySize() {
 
 function applyResponsiveStructure() {
   if (mobileQuery.matches) {
-    for (const el of [photoLibrary, libraryNote, compositionGroup, gradeGroup, letteringGroup, cropGroup, exportGroup]) {
+    for (const el of [photoLibrary, libraryNote, compositionGroup, gradeGroup, letteringGroup, letteringSizeGroup, cropGroup, exportGroup]) {
       if (el && el.parentElement !== sheetBody) sheetBody.appendChild(el);
     }
     document.body.classList.add('mobile-layout');
@@ -1141,7 +1192,7 @@ function applyResponsiveStructure() {
   } else {
     if (photoLibrary && photoLibrary.parentElement !== leftSidebar) leftSidebar.appendChild(photoLibrary);
     if (libraryNote && libraryNote.parentElement !== leftSidebar) leftSidebar.appendChild(libraryNote);
-    for (const el of [compositionGroup, gradeGroup, letteringGroup, cropGroup, exportGroup]) {
+    for (const el of [compositionGroup, gradeGroup, letteringGroup, letteringSizeGroup, cropGroup, exportGroup]) {
       if (el && el.parentElement !== rightSidebar) rightSidebar.appendChild(el);
     }
     document.body.classList.remove('mobile-layout');
@@ -1171,13 +1222,16 @@ function initResponsiveUI() {
   applyResponsiveStructure();
   mobileQuery.addEventListener?.('change', applyResponsiveStructure);
   sheetTabs?.querySelectorAll('.sheet-tab').forEach(btn => {
-    btn.addEventListener('click', () => setMobileTab(btn.dataset.tab));
+    btn.addEventListener('click', () => {
+      setMobileTab(btn.dataset.tab);
+      if (sheetState === 'peek') setSheetState('half');
+    });
   });
   sheetHandle?.addEventListener('click', () => {
     const idx = SHEET_CYCLE.indexOf(sheetState);
     setSheetState(SHEET_CYCLE[(idx + 1) % SHEET_CYCLE.length]);
   });
-  setSheetState('half');
+  setSheetState(mobileQuery.matches ? 'peek' : 'half');
 
   if ('ResizeObserver' in window) {
     const observer = new ResizeObserver(() => updateCanvasDisplaySize());
@@ -1334,6 +1388,11 @@ async function initApp() {
     colors: COLOR_PRESETS,
     fonts: FONTS,
     exportCoverPng,
+    previewGuides: () => ({
+      lettering: canvas.dataset.letteringGuide === 'true',
+      panel: canvas.dataset.panelGuide === 'true',
+    }),
+    sheetState: () => sheetState,
     TITLE_SAFE_TOP,
     FOOTER_HEIGHT,
   };
