@@ -4,18 +4,18 @@
 // Decorations: film grain, global vignette, panel gutters, outer frame with keyline.
 
 /**
- * Draws panel gutters — thick off-white gutter with thin black keyline.
+ * Draws panel gutters — thick neutral gutter with a thin black keyline.
  * Uses the actual clip-path polygons for angled panels.
  */
 export function drawPanelGutters(ctx, panels, canvasW, canvasH, gutterPx) {
   if (panels.length <= 1 || gutterPx <= 0) return;
   ctx.save();
 
-  // Draw the gutter background (off-white)
+  // Draw the gutter background (neutral #f4f4f6)
   // We fill the entire canvas with gutter color, then each panel clips its photo over it
   // This function is called BEFORE panels to lay down the gutter, then panels draw on top.
   // Actually, the gutter is the gap between panels, so we draw it as the base.
-  ctx.fillStyle = '#f0ece4'; // warm off-white
+  ctx.fillStyle = '#f4f4f6';
   ctx.fillRect(0, 0, canvasW, canvasH);
 
   // Thin black keyline around each panel (drawn after panels in renderer)
