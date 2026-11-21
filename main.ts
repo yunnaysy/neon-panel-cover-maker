@@ -1,7 +1,8 @@
-// Neon Panel v2 — an offline multi-panel cover-art studio for make.fun's
-// gta6-cover-art-01 bounty. It combines five adaptive poster layouts, local
-// photo cropping, cinematic color grades, original title-band lettering,
-// bundled SIL OFL fonts, and square, portrait and landscape PNG exports.
+// Neon Panel — an offline multi-panel cover-art studio for make.fun's
+// cover-art bounty. It combines five adaptive poster layouts, local photo
+// cropping, cinematic colour grades, original title-band lettering, nine
+// bundled OFL fonts, six lettering templates, undo/redo, and square, portrait
+// and landscape PNG exports.
 //
 // Serve locally with `node serve.ts`, then open http://localhost:8080.
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:

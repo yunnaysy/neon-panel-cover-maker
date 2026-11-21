@@ -1,5 +1,5 @@
 // Cinematic color grading presets for Neon Panel v2.
-// Golden Hour, Neon Night, Vice Dusk, Noon Haze, Pastel Deco.
+// Golden Hour, Neon Night, Magenta Dusk, Neon Haze, Pastel Deco.
 
 export const COLOR_PRESETS = [
   {
@@ -51,8 +51,8 @@ export const COLOR_PRESETS = [
     blendMode: 'overlay',
   },
   {
-    id: 'vice-dusk',
-    name: 'Vice Dusk',
+    id: 'magenta-dusk',
+    name: 'Magenta Dusk',
     badge: '🌆',
     cssFilter: 'contrast(1.20) saturate(1.32) brightness(1.0)',
     poster: {

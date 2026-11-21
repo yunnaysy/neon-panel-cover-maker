@@ -1,7 +1,7 @@
 // Poster-collage layout presets for Neon Panel v2.
 // Each layout adapts to 1920x1080, 1080x1350 and 1080x1080 canvas sizes.
-// Panels use a thick off-white gutter with thin black keyline. Some panels
-// have angled/diagonal cuts for a classic open-world crime game poster feel.
+// Panels use a thick neutral gutter with a thin black keyline. Some panels
+// have angled/diagonal cuts for a classic open-world crime-story poster feel.
 
 export const LAYOUT_PRESETS = [
   { id: 'key-art',       name: 'Key Art',        count: 6, icon: '◫' },
@@ -16,8 +16,8 @@ export const LAYOUT_PRESETS = [
  * Each panel is { id, points: [[x,y],...], bounds: {x,y,w,h} }
  * Points are normalized 0-1 relative to canvas.
  */
-export function getLayoutPanels(layoutId, canvasW, canvasH) {
-  const aspect = canvasW / canvasH;
+export function getLayoutPanels(layoutId, canvasW, canvasH, aspectOverride = null) {
+  const aspect = aspectOverride ?? (canvasW / canvasH);
   const isLandscape = aspect > 1.5;   // 16:9
   const isPortrait  = aspect < 0.85;   // 4:5
   // else square 1:1
@@ -192,19 +192,21 @@ function splitDiagonalLayout(isLand, isPort) {
  * Returns array of { id, clipPath: [[px,py],...], x, y, width, height }.
  * Panels are inset by half the gutter on each shared edge.
  */
-export function computePanelPixelRects(layoutId, canvasW, canvasH, gutterPx = 10) {
-  const panels = getLayoutPanels(layoutId, canvasW, canvasH);
+export function computePanelPixelRects(layoutId, canvasW, canvasH, gutterPx = 10, options = {}) {
+  const photoHeight = (options.photoHeight ?? 1) * canvasH;
+  const photoAspect = canvasW / Math.max(1, photoHeight);
+  const panels = getLayoutPanels(layoutId, canvasW, photoHeight, photoAspect);
   const halfG = gutterPx / 2;
 
   return panels.filter(p => p.bounds.w > 0.01 && p.bounds.h > 0.01).map(p => {
-    // Convert normalized points to pixel
-    const clipPath = p.points.map(([nx,ny]) => [nx * canvasW, ny * canvasH]);
+    // Convert normalized points to pixel, reflowed into the photo area.
+    const clipPath = p.points.map(([nx,ny]) => [nx * canvasW, ny * photoHeight]);
 
     // Bounds in pixels
     const bx = p.bounds.x * canvasW;
-    const by = p.bounds.y * canvasH;
+    const by = p.bounds.y * photoHeight;
     const bw = p.bounds.w * canvasW;
-    const bh = p.bounds.h * canvasH;
+    const bh = p.bounds.h * photoHeight;
 
     // Inset clip path by half-gutter toward the center of the bounds
     const cx = bx + bw/2;

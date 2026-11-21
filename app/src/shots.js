@@ -1,3 +1,8 @@
+/**
+ * Automated screenshot harness for the project's screenshots.
+ * Loads the bundled sample photos and renders the ?shot=cover and
+ * ?shot=editor scenes requested via URL parameters.
+ */
 // Automated screenshot harness for Neon Panel v2.
 // Responds to URL ?shot=cover or ?shot=editor.
 // Loads sample photos and sets up the requested scene.
