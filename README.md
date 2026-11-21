@@ -26,6 +26,8 @@ Neon Panel is an offline, static cover-art poster studio. It builds a multi-pane
 ![Neon Panel portrait cover](screenshots/3-cover.jpg)
 ![Neon Panel mobile](screenshots/4-mobile.jpg)
 
+Screenshot outputs are regenerated from `shots.json` via `npm run shots`: PNG/JPEG files must be <= 250 KB, long side <= 1280 px, short side >= 480 px.
+
 ## Run
 
 Serve the static app:
