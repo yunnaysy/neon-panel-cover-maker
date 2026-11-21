@@ -51,7 +51,7 @@ export const COLOR_PRESETS = [
     blendMode: 'overlay',
   },
   {
-    id: 'vice-dusk',
+    id: 'magenta-dusk',
     name: 'Magenta Dusk',
     badge: '🌆',
     cssFilter: 'contrast(1.20) saturate(1.32) brightness(1.0)',

@@ -1,6 +1,7 @@
 // Export utilities for Neon Panel v2 — high-resolution PNG cover downloads.
 
 import { renderCoverArt } from './renderer.js';
+import { loadAllFonts } from './typography.js';
 
 export const EXPORT_PRESETS = [
   { id: 'landscape', name: 'Landscape Banner', width: 1920, height: 1080, aspectLabel: '16:9' },
@@ -12,12 +13,7 @@ export const EXPORT_PRESETS = [
  * Renders state onto an offscreen canvas at target resolution and triggers PNG download.
  */
 export async function exportCoverPng(state, targetWidth, targetHeight, filename = 'neon-panel-cover.png') {
-  // Make sure every chosen poster font is ready before drawing the export.
-  try {
-    const { FONTS } = await import('./typography.js');
-    await Promise.all(FONTS.map(f => document.fonts.load(`${f.style} 60px ${f.family}`)));
-    await document.fonts.ready;
-  } catch {}
+  await loadAllFonts();
   return new Promise((resolve, reject) => {
     try {
       const offscreen = document.createElement('canvas');
@@ -30,7 +26,7 @@ export async function exportCoverPng(state, targetWidth, targetHeight, filename 
       state.canvasWidth = targetWidth;
       state.canvasHeight = targetHeight;
 
-      renderCoverArt(offscreen, state, { highlightPanelIndex: null });
+      renderCoverArt(offscreen, state, { preview: false });
 
       state.canvasWidth = origW;
       state.canvasHeight = origH;
@@ -69,7 +65,7 @@ export function renderToOffscreenCanvas(state, width, height) {
   state.canvasWidth = width;
   state.canvasHeight = height;
 
-  renderCoverArt(offscreen, state, { highlightPanelIndex: null });
+  renderCoverArt(offscreen, state, { preview: false });
 
   state.canvasWidth = origW;
   state.canvasHeight = origH;
