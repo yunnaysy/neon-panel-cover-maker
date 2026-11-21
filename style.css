@@ -7,14 +7,50 @@
 }
 
 @font-face {
+  font-family: "Anton";
+  src: url("./fonts/Anton-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Archivo Black";
+  src: url("./fonts/ArchivoBlack-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Monoton";
+  src: url("./fonts/Monoton-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("./fonts/PlayfairDisplay-Variable.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Kaushan Script";
   src: url("./fonts/KaushanScript-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Pacifico";
   src: url("./fonts/Pacifico-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -22,6 +58,15 @@
   font-family: "Oswald";
   src: url("./fonts/Oswald-Variable.ttf") format("truetype");
   font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Saira Stencil One";
+  src: url("./fonts/SairaStencilOne-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -35,6 +80,7 @@
   --pink: #ff5b9c;
   --cyan: #66e4eb;
   --gold: #f7bd68;
+  --lavender: #bcaeff;
 }
 
 *,
@@ -43,11 +89,12 @@
   box-sizing: border-box;
 }
 
+[hidden] { display: none !important; }
+
 html,
 body {
   width: 100%;
   height: 100%;
-  min-width: 0;
   margin: 0;
   overflow: hidden;
   background: var(--ink);
@@ -57,7 +104,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -294,7 +342,7 @@ input {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   min-width: 0;
   height: 100%;
   padding: 12px 10px;
@@ -308,24 +356,33 @@ input {
 
 .preview-head {
   display: flex;
-  flex: 0 0 auto;
   justify-content: space-between;
   align-items: flex-end;
   width: 100%;
   max-width: 760px;
   margin: 0 auto 8px;
+  gap: 8px;
 }
 
-.preview-head > div { display: grid; gap: 5px; }
+.preview-head > div:first-child { display: grid; gap: 5px; min-width: 0; }
 .preview-head strong { color: #f5eee7; font: 600 13px/1 "Oswald", sans-serif; letter-spacing: .45px; }
-.preview-ratio { color: #b6aebc; font: 600 9px/1 "Oswald", sans-serif; letter-spacing: .55px; }
+.preview-ratio { color: #b6aebc; font: 600 9px/1 "Oswald", sans-serif; letter-spacing: .55px; white-space: nowrap; }
 .preview-ratio i { display: inline-block; width: 4px; height: 4px; margin: 0 5px 1px; border-radius: 50%; background: #e88782; }
+
+.preview-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
 
 .canvas-wrapper {
   display: flex;
-  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
+  flex: 1 1 auto;
   width: 100%;
   max-width: 100%;
   min-height: 0;
@@ -337,7 +394,7 @@ input {
 
 #cover-canvas {
   display: block;
-  width: 100%;
+  width: auto;
   height: auto;
   max-width: 100%;
   max-height: 100%;
@@ -345,11 +402,11 @@ input {
   border-radius: 3px;
   box-shadow: 0 0 0 4px rgba(12, 9, 15, .55);
   cursor: crosshair;
+  touch-action: none;
 }
 
 .preview-foot {
   display: flex;
-  flex: 0 0 auto;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -404,7 +461,7 @@ input {
 .slider-row { display: flex; align-items: center; min-width: 0; gap: 8px; }
 .slider-label { width: 38px; flex: 0 0 38px; color: #a39aa9; font-size: 9px; }
 .slider-val { width: 34px; color: #d6abb0; font-size: 9px; text-align: right; font-variant-numeric: tabular-nums; }
-input[type="range"] { flex: 1; height: 4px; accent-color: #ed8b7b; background: #3a3342; cursor: pointer; }
+input[type="range"] { flex: 1; min-width: 0; height: 4px; accent-color: #ed8b7b; background: #3a3342; cursor: pointer; }
 
 .type-mark { color: #e9a47e; font: italic 18px/1 "Kaushan Script", cursive; }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -436,63 +493,7 @@ input[type="range"] { flex: 1; height: 4px; accent-color: #ed8b7b; background: #
 .btn-export b { color: #ffc29b; font-size: 12px; }
 .export-status { min-height: 10px; margin: 0; color: #c9a8a7; font-size: 8px; text-align: center; }
 
-body.shot-cover { min-width: 0; }
-body.shot-cover .studio-container { display: block; width: 100vw; height: 100vh; padding: 0; }
-body.shot-cover .sidebar { display: none !important; }
-body.shot-cover .preview-area { width: 100vw; height: 100vh; padding: 0; border: 0; border-radius: 0; }
-body.shot-cover .preview-head,
-body.shot-cover .preview-foot { display: none; }
-body.shot-cover .canvas-wrapper { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; filter: none; }
-body.shot-cover #cover-canvas { width: 100vw !important; height: 100vh !important; max-width: 100vw; max-height: 100vh; border: 0; border-radius: 0; box-shadow: none; }
-
-@media (min-width: 901px) and (max-width: 1220px) {
-  .studio-container { grid-template-columns: 210px minmax(0, 1fr) 312px; gap: 8px; padding: 8px; }
-  .sidebar { padding: 10px 9px; }
-  .control-group { padding: 9px; }
-  .preview-area { padding: 16px 12px; }
-}
-
-@media (max-height: 850px) {
-  .sidebar-right { gap: 7px; padding-top: 9px; padding-bottom: 8px; }
-  .sidebar-right .control-group { gap: 6px; padding: 8px; }
-  .sidebar-right .layout-btn { min-height: 36px; }
-  .sidebar-right .btn-chip { padding-top: 6px; padding-bottom: 6px; }
-  .sidebar-right .preset-btn { min-height: 26px; padding: 4px; font-size: 7px; }
-  .sidebar-right .field-grid { gap: 5px; }
-  .sidebar-right .field-item { gap: 3px; }
-  .sidebar-right .field-item input[type="text"] { height: 25px; padding-top: 4px; padding-bottom: 4px; }
-  .sidebar-right .compact-fields input { height: 23px !important; }
-  .sidebar-right .title-field input { height: 26px; }
-  .sidebar-right .panel-pill { padding-top: 4px; padding-bottom: 4px; }
-  .sidebar-right .crop-actions .btn { padding-top: 5px; padding-bottom: 5px; }
-  .sidebar-right .btn-export { padding-top: 6px; padding-bottom: 6px; }
-  .sidebar-right .export-status { min-height: 8px; }
-}
-
-@media (max-height: 720px) {
-  .studio-container { padding: 7px; }
-  .sidebar { gap: 7px; padding-top: 9px; }
-  .control-group { gap: 6px; padding: 8px; }
-  .sample-grid { gap: 4px; }
-  .preview-area { padding-top: 12px; padding-bottom: 12px; }
-  .preview-head { margin-bottom: 9px; }
-  .preview-foot { margin-top: 9px; }
-}
-
-/* === Neon Panel: lettering, templates, history, responsive v2 skin === */
-.mobile-topbar,
-.mobile-preview-head,
-.mobile-sheet { display: none; }
-
-.preview-head > .preview-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-width: 0;
-}
-
+/* History and quick export */
 .icon-btn {
   width: 34px;
   height: 34px;
@@ -531,6 +532,7 @@ body.shot-cover #cover-canvas { width: 100vw !important; height: 100vh !importan
   color: #24101b;
 }
 
+/* Segmented controls */
 .segmented {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -621,7 +623,8 @@ body.shot-cover #cover-canvas { width: 100vw !important; height: 100vh !importan
   gap: 3px;
 }
 .pos-btn { min-height: 26px; padding: 0; border-radius: 4px; color: #c9bcce; font-size: 11px; }
-.pos-btn:hover { border-color: #bcaeff; color: #f1eaff; }
+.pos-btn:hover { border-color: var(--lavender); color: #f1eaff; }
+.pos-btn.active { border-color: var(--lavender); background: #332b46; color: #f1eaff; }
 
 .autofit-row { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
 .check-row { display: flex; align-items: center; gap: 6px; color: #b9afc0; font-size: 8px; }
@@ -659,22 +662,64 @@ body.shot-cover #cover-canvas { width: 100vw !important; height: 100vh !importan
 }
 .template-card:hover { border-color: #d69b95; }
 .template-card.active {
-  border-color: #bcaeff;
-  box-shadow: 0 0 0 1px #bcaeff, 0 0 13px rgba(188, 174, 255, .2);
+  border-color: var(--lavender);
+  box-shadow: 0 0 0 1px var(--lavender), 0 0 13px rgba(188, 174, 255, .2);
 }
 .template-preview { display: block; width: 100%; height: auto; border-radius: 3px; background: #241326; }
 .template-name { padding: 4px 3px 2px; font: 600 7px/1.15 "Oswald", sans-serif; letter-spacing: .3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.preview-actions .preview-ratio { white-space: nowrap; }
+.mobile-topbar,
+.mobile-preview-head,
+.mobile-sheet { display: none; }
 
-/* Tablet columns: 210 / fluid preview / 312 (handled above). Keep preview usable. */
+body.shot-cover { min-width: 0; }
+body.shot-cover .studio-container { display: block; width: 100vw; height: 100vh; padding: 0; }
+body.shot-cover .sidebar { display: none !important; }
+body.shot-cover .preview-area { width: 100vw; height: 100vh; padding: 0; border: 0; border-radius: 0; }
+body.shot-cover .preview-head,
+body.shot-cover .preview-foot,
+body.shot-cover .mobile-topbar,
+body.shot-cover .mobile-preview-head { display: none; }
+body.shot-cover .canvas-wrapper { width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; filter: none; }
+body.shot-cover #cover-canvas { max-width: 100vw; max-height: 100vh; border: 0; border-radius: 0; box-shadow: none; }
+
 @media (min-width: 901px) and (max-width: 1220px) {
+  .studio-container { grid-template-columns: 210px minmax(0, 1fr) 312px; gap: 8px; padding: 8px; }
+  .sidebar { padding: 10px 9px; }
+  .control-group { padding: 9px; }
+  .preview-area { padding: 16px 12px; }
   .preview-head { gap: 8px; }
   .preview-actions { gap: 4px; }
-  .preview-actions .icon-btn { padding-left: 6px; padding-right: 6px; }
   .preview-actions .preview-ratio { width: 100%; text-align: right; }
   .template-cards { grid-template-columns: 1fr; }
   .position-controls { grid-template-columns: 1fr; }
+}
+
+@media (max-height: 850px) {
+  .sidebar-right { gap: 7px; padding-top: 9px; padding-bottom: 8px; }
+  .sidebar-right .control-group { gap: 6px; padding: 8px; }
+  .sidebar-right .layout-btn { min-height: 36px; }
+  .sidebar-right .btn-chip { padding-top: 6px; padding-bottom: 6px; }
+  .sidebar-right .preset-btn { min-height: 26px; padding: 4px; font-size: 7px; }
+  .sidebar-right .field-grid { gap: 5px; }
+  .sidebar-right .field-item { gap: 3px; }
+  .sidebar-right .field-item input[type="text"] { height: 25px; padding-top: 4px; padding-bottom: 4px; }
+  .sidebar-right .compact-fields input { height: 23px !important; }
+  .sidebar-right .title-field input { height: 26px; }
+  .sidebar-right .panel-pill { padding-top: 4px; padding-bottom: 4px; }
+  .sidebar-right .crop-actions .btn { padding-top: 5px; padding-bottom: 5px; }
+  .sidebar-right .btn-export { padding-top: 6px; padding-bottom: 6px; }
+  .sidebar-right .export-status { min-height: 8px; }
+}
+
+@media (max-height: 720px) {
+  .studio-container { padding: 7px; }
+  .sidebar { gap: 7px; padding-top: 9px; }
+  .control-group { gap: 6px; padding: 8px; }
+  .sample-grid { gap: 4px; }
+  .preview-area { padding-top: 12px; padding-bottom: 12px; }
+  .preview-head { margin-bottom: 9px; }
+  .preview-foot { margin-top: 9px; }
 }
 
 @media (max-width: 900px) {
@@ -917,44 +962,4 @@ body.shot-cover #cover-canvas { width: 100vw !important; height: 100vh !importan
   .mobile-brand-block .app-tagline { font-size: 7px; }
   #btn-export-mobile { min-width: 72px; padding-left: 7px; padding-right: 7px; font-size: 9px; }
   .template-card { flex-basis: 138px; }
-}
-
-@font-face {
-  font-family: "Anton";
-  src: url("./fonts/Anton-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Archivo Black";
-  src: url("./fonts/ArchivoBlack-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Monoton";
-  src: url("./fonts/Monoton-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Playfair Display";
-  src: url("./fonts/PlayfairDisplay-Variable.ttf") format("truetype");
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Saira Stencil One";
-  src: url("./fonts/SairaStencilOne-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
 }

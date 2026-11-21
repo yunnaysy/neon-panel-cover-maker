@@ -1,7 +1,7 @@
 /**
- * Built-in sample "cast" shot definitions used to fill poster panels.
- * Exports the screenshot harness that loads these bundled sample photos
- * and applies the requested shot scene from URL parameters.
+ * Automated screenshot harness for the project's screenshots.
+ * Loads the bundled sample photos and renders the ?shot=cover and
+ * ?shot=editor scenes requested via URL parameters.
  */
 // Automated screenshot harness for Neon Panel v2.
 // Responds to URL ?shot=cover or ?shot=editor.

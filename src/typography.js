@@ -1,8 +1,8 @@
-import { getColorPreset } from './colorGrades.js';
+// Poster lettering, fonts and template definitions for Neon Panel.
+// Every layer is measured in logical units (u = sqrt(w*h)/1000) so the same
+// values render identically at preview and export resolutions.
 
-// Poster lettering and title-band ornaments for Neon Panel.
-// All editable measurements are stored in logical units (u = sqrt(w*h)/1000)
-// so that the same design renders at every export size.
+import { getColorPreset } from './colorGrades.js';
 
 export const TITLE_SAFE_TOP = 0.635;
 export const FOOTER_HEIGHT = 0.065;
@@ -12,7 +12,7 @@ export const TITLE_COLOR_THEMES = [
   {
     id: 'coast-sunset',
     name: 'Coast Sunset',
-    badge: 'SUNSET',
+    badge: 'COAST',
     stops: [
       { pos: 0, color: '#fff3d4' },
       { pos: 0.34, color: '#ffc05c' },
@@ -37,7 +37,7 @@ export const FONTS = [
   { family: 'Saira Stencil One', file: 'SairaStencilOne-Regular.ttf', weight: 400, cssWeight: 400, stacks: '"Saira Stencil One", "Oswald", Impact, sans-serif' },
 ];
 
-export const FONT_STACKS = Object.fromEntries(FONTS.map(f => [f.family, f.stacks]));
+export const FONT_STACKS = Object.fromEntries(FONTS.map(font => [font.family, font.stacks]));
 
 export const LAYER_META = {
   title: { label: 'Title', minSize: 48, maxSize: 220, minSpacing: -5, maxSpacing: 20, minLine: 0.7, maxLine: 1.5, defaultLine: 1.0 },
@@ -131,7 +131,7 @@ export const LETTERING_TEMPLATES = [
 export const LAYER_DEFAULT_X = { left: 5.5, center: 50, right: 94.5 };
 
 export function getTemplate(id) {
-  return LETTERING_TEMPLATES.find(t => t.id === id) || LETTERING_TEMPLATES[0];
+  return LETTERING_TEMPLATES.find(template => template.id === id) || LETTERING_TEMPLATES[0];
 }
 
 export function cloneLayers(layers) {
@@ -166,7 +166,7 @@ export function logicalUnit(w, h) {
 }
 
 function fontFor(layer, sizePx) {
-  const font = FONTS.find(f => f.family === layer.font) || FONTS[0];
+  const font = FONTS.find(item => item.family === layer.font) || FONTS[0];
   const weight = font.cssWeight || 400;
   const italic = layer.italic && layer.font === 'Bebas Neue' ? 'italic ' : '';
   return `${italic}${weight} ${Math.max(1, Math.round(sizePx))}px ${FONT_STACKS[layer.font] || FONT_STACKS['Bebas Neue']}`;
@@ -175,8 +175,8 @@ function fontFor(layer, sizePx) {
 function getTextLines(typo, name, layer) {
   if (name === 'title') {
     const raw = String(typo.mainTitle ?? '').trim();
-    const lines = raw.split('/').map(line => line.trim()).filter(Boolean);
-    const value = lines.length ? lines : ['UNTITLED COVER'];
+    const parts = raw.split('/').map(line => line.trim()).filter(Boolean);
+    const value = parts.length ? parts : ['UNTITLED COVER'];
     return value.map(line => (layer.uppercase === false ? line : line.toUpperCase()));
   }
   if (name === 'subtitle') {
@@ -186,8 +186,7 @@ function getTextLines(typo, name, layer) {
   }
   const raw = String(typo.tagline ?? '').trim();
   const main = layer.uppercase === false ? raw : raw.toUpperCase();
-  const lines = [main, BILLING_CREDIT];
-  return lines.filter(Boolean);
+  return [main, BILLING_CREDIT].filter(Boolean);
 }
 
 function measureText(ctx, text, font, spacingPx, fallbackSize) {
@@ -211,12 +210,7 @@ function measureLayer(ctx, typo, name, w, h) {
   const spacingPx = (Number.isFinite(layer.spacing) ? layer.spacing : 0) * u;
   const lineHeight = Number.isFinite(layer.lineHeight) ? layer.lineHeight : meta.defaultLine;
   const lines = getTextLines(typo, name, layer);
-  const sizes = [];
-  if (name === 'billing') {
-    sizes.push(1, 0.62);
-  } else {
-    for (let i = 0; i < lines.length; i++) sizes.push(1);
-  }
+  const sizes = name === 'billing' ? [1, 0.62] : lines.map(() => 1);
 
   let sizePx = Number.isFinite(layer.size)
     ? Math.max(1, layer.size * u)
@@ -235,18 +229,16 @@ function measureLayer(ctx, typo, name, w, h) {
     width = 0;
     let ink = 0;
     let block = 0;
-    let lastGap = 0;
     for (let i = 0; i < lines.length; i++) {
       const ratio = sizes[i] ?? 1;
       const lineSize = sizePx * ratio;
       const lineSpacing = spacingPx * ratio;
       const font = fontFor(layer, lineSize);
-      const m = measureText(ctx, lines[i], font, lineSpacing, lineSize);
-      measured.push({ text: lines[i], font, size: lineSize, spacing: lineSpacing, ...m });
-      width = Math.max(width, m.width);
-      ink += m.ink;
-      lastGap = lineSize * lineHeight;
-      block += lastGap;
+      const metrics = measureText(ctx, lines[i], font, lineSpacing, lineSize);
+      measured.push({ text: lines[i], font, size: lineSize, spacing: lineSpacing, ...metrics });
+      width = Math.max(width, metrics.width);
+      ink += metrics.ink;
+      block += lineSize * lineHeight;
     }
     if (name !== 'billing' && measured.length > 1) {
       ink += (measured.length - 1) * sizePx * lineHeight * 0.35;
@@ -270,7 +262,6 @@ function measureLayer(ctx, typo, name, w, h) {
   }
 
   const overflow = width > maxWidth + 0.5 || inkHeight > maxInkHeight + 0.5;
-
   const anchorX = (Number.isFinite(layer.x) ? layer.x : BASE_LAYERS[name].x) / 100 * w;
   const anchorY = (Number.isFinite(layer.y) ? layer.y : BASE_LAYERS[name].y) / 100 * h;
   const boxW = Math.max(width, sizePx * 0.4);
@@ -302,7 +293,14 @@ function measureLayer(ctx, typo, name, w, h) {
   };
 }
 
-/** Measures every lettering layer, using a provided 2D context when available. */
+let measureCanvas = null;
+function getMeasureContext() {
+  if (!measureCanvas) measureCanvas = document.createElement('canvas');
+  const ctx = measureCanvas.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  return ctx;
+}
+
 export function getTypographyLayout(typo, w, h, ctx = null) {
   if (!ctx) ctx = getMeasureContext();
   const geo = getBandGeometry(w, h);
@@ -315,15 +313,6 @@ export function getTypographyLayout(typo, w, h, ctx = null) {
   };
 }
 
-let measureCanvas = null;
-function getMeasureContext() {
-  if (!measureCanvas) measureCanvas = document.createElement('canvas');
-  const ctx = measureCanvas.getContext('2d');
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  return ctx;
-}
-
-// Kept for older call sites/screenshot harnesses.
 export function getTitleSafeZone(canvasH) {
   return { top: canvasH * TITLE_SAFE_TOP, bottom: canvasH };
 }
@@ -336,7 +325,7 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH, options = {}) {
 
   ctx.save();
   drawTitleBand(ctx, canvasW, canvasH, poster, placement, options);
-  drawFooterStrip(ctx, String(typo.tagline || '').trim().toUpperCase(), canvasW, canvasH, poster, options, typo);
+  drawFooterStrip(ctx, poster, options);
 
   if (!options.minimal) {
     drawQuoteLine(ctx, typo.quoteLine, canvasW * 0.055, geo.bandTop + geo.bandH * 0.14, canvasW, canvasH, poster.accentColor);
@@ -347,9 +336,9 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH, options = {}) {
     }
   }
 
-  drawLayer(ctx, layout.layers.title, poster, canvasW, canvasH);
-  drawLayer(ctx, layout.layers.subtitle, poster, canvasW, canvasH);
-  drawLayer(ctx, layout.layers.billing, poster, canvasW, canvasH);
+  drawTextLayer(ctx, layout.layers.title, poster, 'title', canvasW);
+  drawTextLayer(ctx, layout.layers.subtitle, poster, 'subtitle', canvasW);
+  drawBillingLayer(ctx, layout.layers.billing);
 
   if (Array.isArray(typo.panelLabels) && typo.panelLabels.length && !options.minimal) {
     drawPanelLabels(ctx, typo.panelLabels, canvasW, canvasH);
@@ -357,35 +346,26 @@ export function drawCoverTypography(ctx, typo, canvasW, canvasH, options = {}) {
   ctx.restore();
 }
 
-function drawLayer(ctx, info, poster, w, h) {
-  if (!info || !info.lines.length) return;
-  if (info.name === 'billing') drawBillingLayer(ctx, info, poster);
-  else if (info.name === 'subtitle') drawTextLayer(ctx, info, poster, 'subtitle', w);
-  else drawTextLayer(ctx, info, poster, 'title', w);
-}
-
 function drawTextLayer(ctx, info, poster, kind, canvasW) {
+  if (!info || !info.lines.length) return;
   const layer = info.layer;
   const effect = layer.effect || (kind === 'title' ? 'gradient' : 'neon');
   const color = layer.color || (kind === 'title' ? poster.titleStops[0] : poster.subtitleColor);
-  const lines = info.lines;
-  const total = info.blockHeight;
-  let cursor = info.anchorY - total / 2;
+  let cursor = info.anchorY - info.blockHeight / 2;
 
   ctx.save();
   ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (const line of info.lines) {
     const advance = line.size * info.lineHeight;
     const centerY = cursor + advance / 2;
     const x = info.align === 'center' ? info.anchorX : info.align === 'right' ? info.anchorX - line.width : info.anchorX;
     ctx.font = line.font;
     if ('letterSpacing' in ctx) ctx.letterSpacing = `${line.spacing}px`;
-    ctx.textAlign = 'left';
-    drawLineEffect(ctx, line.text, x, centerY, line.size, effect, poster, kind, color, info, canvasW);
+    drawLineEffect(ctx, line.text, x, centerY, line.size, effect, poster, kind, color, canvasW);
     cursor += advance;
   }
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
@@ -393,14 +373,13 @@ function drawTextLayer(ctx, info, poster, kind, canvasW) {
 }
 
 function drawBillingLayer(ctx, info) {
-  const lines = info.lines;
-  const total = info.blockHeight;
-  let cursor = info.anchorY - total / 2;
+  if (!info || !info.lines.length) return;
+  let cursor = info.anchorY - info.blockHeight / 2;
   ctx.save();
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (let i = 0; i < info.lines.length; i++) {
+    const line = info.lines[i];
     const advance = line.size * info.lineHeight;
     const y = cursor + advance / 2;
     const x = info.align === 'center' ? info.anchorX : info.align === 'right' ? info.anchorX - line.width : info.anchorX;
@@ -427,7 +406,7 @@ function drawBillingLayer(ctx, info) {
   ctx.restore();
 }
 
-function drawLineEffect(ctx, text, x, y, sizePx, effect, poster, kind, color, info, canvasW) {
+function drawLineEffect(ctx, text, x, y, sizePx, effect, poster, kind, color, canvasW) {
   const outline = Math.max(4, sizePx * 0.085);
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
@@ -525,7 +504,7 @@ function drawLineEffect(ctx, text, x, y, sizePx, effect, poster, kind, color, in
     ctx.fillStyle = `rgba(14, 5, 20, ${alpha.toFixed(2)})`;
     ctx.fillText(text, x + d * 1.15, y + d * 1.1);
   }
-  ctx.strokeStyle = poster.titleGlow && kind === 'title' ? '#160c1b' : '#160c1b';
+  ctx.strokeStyle = '#160c1b';
   ctx.lineWidth = outline;
   ctx.strokeText(text, x, y);
   ctx.shadowColor = poster.titleGlow;
@@ -671,7 +650,9 @@ function drawStarburstBadge(ctx, text, cx, cy, radius, poster) {
   ctx.restore();
 }
 
-function drawFooterStrip(ctx, tagline, w, h, poster, options = {}, typo = {}) {
+function drawFooterStrip(ctx, poster, options = {}) {
+  const w = ctx.canvas.width;
+  const h = ctx.canvas.height;
   const stripH = h * FOOTER_HEIGHT;
   const y = h - stripH;
   const band = ctx.createLinearGradient(0, y, w, h);
@@ -747,7 +728,7 @@ function drawPanelLabels(ctx, labels, w, h) {
   ctx.restore();
 }
 
-/** Loads every bundled poster font. */
+/** Loads every bundled poster font before an export or a thumbnail render. */
 export async function loadAllFonts() {
   if (!('fonts' in document)) return;
   await Promise.all(FONTS.map(font => {
@@ -757,7 +738,7 @@ export async function loadAllFonts() {
   await document.fonts.ready;
 }
 
-/** Renders a live title-band thumbnail for a template card. */
+/** Renders the real title band of a template into a card canvas. */
 export function drawTemplateThumbnail(canvas, typo, templateId) {
   const template = getTemplate(templateId);
   const virtual = document.createElement('canvas');

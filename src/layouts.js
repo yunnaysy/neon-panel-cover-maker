@@ -1,7 +1,7 @@
 // Poster-collage layout presets for Neon Panel v2.
 // Each layout adapts to 1920x1080, 1080x1350 and 1080x1080 canvas sizes.
 // Panels use a thick neutral gutter with a thin black keyline. Some panels
-// have angled/diagonal cuts for a classic open-world crime game poster feel.
+// have angled/diagonal cuts for a classic open-world crime-story poster feel.
 
 export const LAYOUT_PRESETS = [
   { id: 'key-art',       name: 'Key Art',        count: 6, icon: '◫' },

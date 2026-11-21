@@ -1,4 +1,4 @@
-// Main Canvas Composition Pipeline for Neon Panel.
+// Canvas composition pipeline for Neon Panel.
 // The graded photo collage is rendered once into an offscreen canvas keyed by
 // the photo state. Lettering is painted on top on every frame, so typing never
 // re-grades any photo.
@@ -27,15 +27,21 @@ export function computePanelsForState(state, w, h) {
 const photoCache = { key: null, canvas: null };
 
 function photoCacheKey(state, w, h) {
-  const photoData = (state.panelPhotos || []).map(p => p ? [p.gradePreset || null, p.gradeIntensity ?? null, p.panX, p.panY, p.zoom] : null);
+  const photoData = (state.panelPhotos || []).map(panel => panel ? [
+    panel.gradePreset || null,
+    panel.gradeIntensity ?? null,
+    panel.panX,
+    panel.panY,
+    panel.zoom,
+  ] : null);
   return JSON.stringify({
     v: state.photoVersion || 0,
-    w, h,
+    w,
+    h,
     layout: state.layout,
     placement: state.letteringPlacement || 'below',
     preset: state.colorPreset,
     intensity: state.colorIntensity,
-    scope: state.gradeScope,
     decorations: state.decorations,
     photoData,
   });
@@ -61,15 +67,16 @@ export function renderCoverArt(canvas, state, options = {}) {
   ctx.clearRect(0, 0, w, h);
   ctx.drawImage(photoCache.canvas, 0, 0, w, h);
 
-  drawCoverTypography(ctx, { ...(state.typography || {}), colorPreset: state.colorPreset, placement: state.letteringPlacement }, w, h, {
-    placement: state.letteringPlacement || 'below',
-  });
+  drawCoverTypography(ctx, {
+    ...(state.typography || {}),
+    colorPreset: state.colorPreset,
+    placement: state.letteringPlacement,
+  }, w, h, { placement: state.letteringPlacement || 'below' });
 
   if (options.preview) drawPreviewOverlays(ctx, state, w, h, panels, options);
 }
 
 function drawPhotoLayer(ctx, state, w, h, panels) {
-  const layoutId = state.layout || 'key-art';
   const gutterPx = Math.max(6, Math.round(Math.min(w, h) * 0.016));
   const colorPreset = state.colorPreset || 'golden-hour';
   const globalIntensity = state.colorIntensity ?? 0.75;
@@ -105,6 +112,7 @@ function drawPhotoLayer(ctx, state, w, h, panels) {
 
 function renderPanel(ctx, panel, photoData, colorPreset, colorIntensity) {
   ctx.save();
+
   ctx.beginPath();
   if (panel.clipPath && panel.clipPath.length > 2) {
     ctx.moveTo(panel.clipPath[0][0], panel.clipPath[0][1]);
@@ -166,19 +174,19 @@ function drawPreviewOverlays(ctx, state, w, h, panels, options = {}) {
   const panelMode = state.gradeScope === 'panel';
 
   if (options.showPanelGuide !== false && panelMode && active != null && active >= 0 && panels[active]) {
-    const hp = panels[active];
+    const panel = panels[active];
     ctx.save();
     ctx.strokeStyle = '#66e4eb';
     ctx.lineWidth = Math.max(2, Math.round(Math.min(w, h) * 0.003));
     ctx.setLineDash([Math.max(7, w * 0.006), Math.max(4, w * 0.004)]);
-    if (hp.clipPath && hp.clipPath.length > 2) {
+    if (panel.clipPath && panel.clipPath.length > 2) {
       ctx.beginPath();
-      ctx.moveTo(hp.clipPath[0][0], hp.clipPath[0][1]);
-      for (let i = 1; i < hp.clipPath.length; i++) ctx.lineTo(hp.clipPath[i][0], hp.clipPath[i][1]);
+      ctx.moveTo(panel.clipPath[0][0], panel.clipPath[0][1]);
+      for (let i = 1; i < panel.clipPath.length; i++) ctx.lineTo(panel.clipPath[i][0], panel.clipPath[i][1]);
       ctx.closePath();
       ctx.stroke();
     } else {
-      ctx.strokeRect(hp.x + 2, hp.y + 2, hp.width - 4, hp.height - 4);
+      ctx.strokeRect(panel.x + 2, panel.y + 2, panel.width - 4, panel.height - 4);
     }
     ctx.restore();
   }
@@ -207,7 +215,6 @@ function drawPreviewOverlays(ctx, state, w, h, panels, options = {}) {
     }
   }
 
-  // Lavender dashed outline + handle: only during hover/drag/control focus.
   if (options.showLetteringGuides) {
     const layout = getTypographyLayout(state.typography, w, h, ctx);
     const selected = state.typography?.selectedLayer || 'title';
@@ -225,6 +232,7 @@ function drawPreviewOverlays(ctx, state, w, h, panels, options = {}) {
       ctx.restore();
     }
   }
+
   if (state._snapGuide && options.showLetteringGuides) {
     ctx.save();
     ctx.strokeStyle = 'rgba(188, 174, 255, .8)';
