@@ -2,22 +2,295 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#100d18">
+<title>Neon Panel — Coast Sunset Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5b9c'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+<div class="mobile-top" id="mobileTop">
+  <div class="mobile-brand">
+    <span class="brand-badge" aria-hidden="true">NP</span>
+    <div class="mobile-brand-text">
+      <span class="wordmark small">NEON PANEL</span>
+      <span class="tagline">Build a city after dark.</span>
+      <span class="studio-line"><span class="dot"></span>STUDIO 02 • OFFLINE</span>
+    </div>
+  </div>
+  <button class="export-pill" id="mobileExport" type="button">Export PNG ↗</button>
+</div>
+
+<div class="mobile-stagehead" id="mobileStageHead">
+  <div class="mobile-stage-title">
+    <span class="label">LIVE COMPOSITION</span>
+    <span class="stage-title" id="mobileCurrentTitle">NEON LIGHTS</span>
+  </div>
+  <div class="mobile-tools">
+    <span class="meta" id="mobileAspectMeta">16:9 • 1920 × 1080</span>
+    <button class="ghost" id="mobileUndo" type="button" aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
+    <button class="ghost" id="mobileRedo" type="button" aria-label="Redo" title="Redo (Shift+Ctrl+Z)">↷</button>
+  </div>
+</div>
+
+<div class="studio" id="studio">
+  <aside class="left" aria-label="Photo cast">
+    <div class="brand">
+      <span class="brand-badge" aria-hidden="true">NP</span>
+      <span class="wordmark">NEON PANEL</span>
+      <span class="tagline">Build a city after dark.</span>
+      <span class="studio-line"><span class="dot"></span>STUDIO 02 • OFFLINE</span>
+    </div>
+
+    <section class="card photos-card" id="photosCard">
+      <div class="card-head">
+        <h2><span class="num">01</span> Your photo cast</h2>
+        <span class="counter" id="imageCount">9 IMAGES</span>
+      </div>
+      <div class="drop-zone" id="dropZone">
+        <span class="drop-icon" aria-hidden="true">＋</span>
+        <span class="drop-title">Drop a photo here</span>
+        <span class="drop-sub">Browse · JPG / PNG / WebP</span>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Add photos">
+      </div>
+      <button class="primary load-cast" id="loadCast" type="button">
+        <span>Load sample cast</span>
+        <small>Fill every panel with a different scene</small>
+      </button>
+      <div class="sample-grid" id="sampleGrid" aria-label="Sample photos"></div>
+      <p class="hint">Click a thumbnail or drag it onto a panel.</p>
+    </section>
+
+    <p class="privacy" id="privacyNote"><span class="dot"></span>Photos stay on this device. Nothing is uploaded.</p>
+  </aside>
+
+  <main class="center">
+    <header class="stage-head">
+      <div class="stage-title-wrap">
+        <span class="label">LIVE COMPOSITION</span>
+        <span class="stage-title" id="currentTitle">NEON LIGHTS</span>
+      </div>
+      <div class="stage-tools">
+        <span class="meta" id="aspectMeta">16:9 • 1920 × 1080</span>
+        <button class="ghost" id="undo" type="button" aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
+        <button class="ghost" id="redo" type="button" aria-label="Redo" title="Redo (Shift+Ctrl+Z)">↷</button>
+        <button class="export-pill" id="exportPng" type="button">Export PNG ↗</button>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="poster" width="1600" height="900" aria-label="Neon Panel poster preview"></canvas>
+    </div>
+
+    <div class="stage-caption">
+      <span><span class="dot live"></span>LIVE PREVIEW</span>
+      <span>DRAG TO REFRAME · SCROLL TO ZOOM</span>
+      <span>MADE WITH NEON PANEL</span>
+    </div>
+  </main>
+
+  <aside class="right" id="rightPanel" aria-label="Art direction">
+    <div class="right-head">
+      <span class="label">ART DIRECTION</span>
+      <span class="ready"><span class="dot"></span>READY</span>
+    </div>
+
+    <section class="card" id="compositionCard">
+      <div class="card-head">
+        <h2><span class="num">02</span> Composition</h2>
+      </div>
+      <p class="mini-label">LAYOUT</p>
+      <div class="layout-tiles" id="layoutTiles"></div>
+      <p class="mini-label">EXPORT FORMAT</p>
+      <div class="format-tiles" id="formatTiles"></div>
+    </section>
+
+    <section class="card" id="gradeCard">
+      <div class="card-head">
+        <h2><span class="num">03</span> Color grade</h2>
+      </div>
+      <div class="scope-switch" role="group" aria-label="Color grade scope">
+        <button id="scopeAll" type="button" class="active">Entire poster</button>
+        <button id="scopePanel" type="button">Selected panel</button>
+      </div>
+      <div class="panel-picker">
+        <button class="round-arrow" id="panelPrev" type="button" aria-label="Previous panel">‹</button>
+        <span class="panel-name" id="panelPickerLabel">PANEL 01</span>
+        <button class="round-arrow" id="panelNext" type="button" aria-label="Next panel">›</button>
+      </div>
+      <div class="preset-chips" id="presetChips"></div>
+      <div class="slider-row">
+        <label for="intensity">Intensity</label>
+        <output id="intensityValue">75%</output>
+      </div>
+      <input id="intensity" class="range" type="range" min="0" max="100" step="1" value="75" aria-label="Grade intensity">
+      <div class="button-row">
+        <button id="resetStrength" class="small-btn" type="button">Reset strength</button>
+        <button id="removePanelLook" class="small-btn" type="button">Remove panel look</button>
+      </div>
+      <button id="resetAllColour" class="wide-btn" type="button">Reset all colour</button>
+    </section>
+
+    <section class="card" id="letteringCard">
+      <div class="card-head">
+        <h2><span class="num">04</span> Poster lettering</h2>
+        <span class="aa-mark" aria-hidden="true">Aa</span>
+      </div>
+      <label class="field">
+        <span class="mini-label">MAIN TITLE</span>
+        <input id="titleInput" type="text" maxlength="64" value="NEON LIGHTS" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="mini-label">SCRIPT SUBTITLE</span>
+        <input id="subtitleInput" type="text" maxlength="64" value="Ocean Drive" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="mini-label">STAR-RATING QUOTE</span>
+        <input id="quoteInput" type="text" maxlength="72" value="★★★★★  &quot;A CLASSIC&quot;" autocomplete="off">
+      </label>
+      <div class="field-split">
+        <label class="field">
+          <span class="mini-label">SEAL</span>
+          <input id="sealInput" type="text" maxlength="24" value="ORIGINAL" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="mini-label">FOOTER TAGLINE</span>
+          <input id="taglineInput" type="text" maxlength="72" value="ONE COAST · NO RULES · COMING SOON" autocomplete="off">
+        </label>
+      </div>
+    </section>
+
+    <section class="card" id="typeCard">
+      <div class="card-head">
+        <h2><span class="num">05</span> Lettering size &amp; position</h2>
+      </div>
+      <div class="scope-switch" role="group" aria-label="Lettering placement">
+        <button id="placementBelow" type="button" class="active">Lettering below photos</button>
+        <button id="placementOver" type="button">Lettering over photos</button>
+      </div>
+      <p class="mini-label">LETTERING TEMPLATES</p>
+      <div class="template-row" id="templateRow"></div>
+
+      <div class="layer-tabs" id="layerTabs" role="tablist" aria-label="Lettering layer">
+        <button data-layer="title" type="button" class="active" role="tab" aria-selected="true">Title</button>
+        <button data-layer="subtitle" type="button" role="tab" aria-selected="false">Subtitle</button>
+        <button data-layer="billing" type="button" role="tab" aria-selected="false">Billing</button>
+      </div>
+
+      <label class="field">
+        <span class="mini-label">FONT</span>
+        <select id="fontSelect"></select>
+      </label>
+
+      <div class="control-grid">
+        <div class="control">
+          <div class="slider-row"><label for="sizeRange">Size</label><output id="sizeValue">150</output></div>
+          <input id="sizeRange" class="range" type="range">
+          <input id="sizeNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="spacingRange">Letter spacing</label><output id="spacingValue">1</output></div>
+          <input id="spacingRange" class="range" type="range">
+          <input id="spacingNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="lineHeightRange">Line height</label><output id="lineHeightValue">0.9</output></div>
+          <input id="lineHeightRange" class="range" type="range">
+          <input id="lineHeightNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="xRange">X %</label><output id="xValue">8</output></div>
+          <input id="xRange" class="range" type="range">
+          <input id="xNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="yRange">Y %</label><output id="yValue">74</output></div>
+          <input id="yRange" class="range" type="range">
+          <input id="yNumber" class="num" type="number">
+        </div>
+      </div>
+
+      <p class="mini-label">QUICK POSITION</p>
+      <div class="quick-grid" id="quickGrid" role="group" aria-label="Quick position">
+        <button data-qx="0" data-qy="0" type="button" aria-label="Top left">↖</button>
+        <button data-qx="1" data-qy="0" type="button" aria-label="Top centre">↑</button>
+        <button data-qx="2" data-qy="0" type="button" aria-label="Top right">↗</button>
+        <button data-qx="0" data-qy="1" type="button" aria-label="Middle left">←</button>
+        <button data-qx="1" data-qy="1" type="button" aria-label="Centre">•</button>
+        <button data-qx="2" data-qy="1" type="button" aria-label="Middle right">→</button>
+        <button data-qx="0" data-qy="2" type="button" aria-label="Bottom left">↙</button>
+        <button data-qx="1" data-qy="2" type="button" aria-label="Bottom centre">↓</button>
+        <button data-qx="2" data-qy="2" type="button" aria-label="Bottom right">↘</button>
+      </div>
+
+      <label class="toggle-row">
+        <input id="autoFit" type="checkbox" checked>
+        <span>Auto-fit title</span>
+      </label>
+      <p class="warning" id="tooWide" hidden>Title is too wide — enable Auto-fit or shorten it.</p>
+      <button id="resetLayer" class="wide-btn" type="button">Reset this layer</button>
+    </section>
+
+    <section class="card" id="cropCard">
+      <div class="card-head">
+        <h2><span class="num">06</span> Crop</h2>
+        <span class="counter" id="cropPanelLabel">PANEL 01</span>
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropZoom">Zoom</label><output id="cropZoomValue">1.00×</output></div>
+        <input id="cropZoom" class="range" type="range" min="1" max="3" step="0.01" value="1">
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropX">X offset</label><output id="cropXValue">0%</output></div>
+        <input id="cropX" class="range" type="range" min="-100" max="100" step="1" value="0">
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropY">Y offset</label><output id="cropYValue">0%</output></div>
+        <input id="cropY" class="range" type="range" min="-100" max="100" step="1" value="0">
+      </div>
+      <button id="resetCrop" class="wide-btn" type="button">Reset crop</button>
+    </section>
+
+    <section class="card" id="exportCard">
+      <div class="card-head">
+        <h2><span class="num">07</span> Export</h2>
+      </div>
+      <div class="export-cards" id="exportCards">
+        <button class="export-card" data-w="1920" data-h="1080" type="button">
+          <strong>1920 × 1080</strong><span>16:9 landscape</span>
+        </button>
+        <button class="export-card" data-w="1080" data-h="1350" type="button">
+          <strong>1080 × 1350</strong><span>4:5 portrait</span>
+        </button>
+        <button class="export-card" data-w="1080" data-h="1080" type="button">
+          <strong>1080 × 1080</strong><span>1:1 square</span>
+        </button>
+      </div>
+      <p class="hint">Each card downloads a full-resolution PNG.</p>
+    </section>
+  </aside>
+</div>
+
+<div class="mobile-sheet" id="mobileSheet">
+  <button class="sheet-handle" id="sheetHandle" type="button" aria-label="Cycle panel height"><span></span></button>
+  <div class="sheet-tabs" id="sheetTabs" role="tablist" aria-label="Studio panels">
+    <button data-sheet-tab="photos" type="button" class="active" role="tab" aria-selected="true">Photos</button>
+    <button data-sheet-tab="layout" type="button" role="tab" aria-selected="false">Layout</button>
+    <button data-sheet-tab="type" type="button" role="tab" aria-selected="false">Type</button>
+    <button data-sheet-tab="colour" type="button" role="tab" aria-selected="false">Colour</button>
+    <button data-sheet-tab="export" type="button" role="tab" aria-selected="false">Export</button>
+  </div>
+  <div class="sheet-body" id="sheetBody">
+    <div class="sheet-panel active" data-sheet-panel="photos"></div>
+    <div class="sheet-panel" data-sheet-panel="layout"></div>
+    <div class="sheet-panel" data-sheet-panel="type"></div>
+    <div class="sheet-panel" data-sheet-panel="colour"></div>
+    <div class="sheet-panel" data-sheet-panel="export"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
