@@ -1,74 +1,33 @@
-// Export utilities for Neon Panel v2 — high-resolution PNG cover downloads.
+// PNG export: make sure every face and the document's fonts are ready, render a fresh full-resolution poster
+// without preview outlines, then hand the blob to a download link.
 
-import { renderCoverArt } from './renderer.js';
-import { loadAllFonts } from './typography.js';
+import { FONTS } from './typography.js';
+import { renderPoster } from './renderer.js';
 
-export const EXPORT_PRESETS = [
-  { id: 'landscape', name: 'Landscape Banner', width: 1920, height: 1080, aspectLabel: '16:9' },
-  { id: 'portrait', name: 'Portrait Post', width: 1080, height: 1350, aspectLabel: '4:5' },
-  { id: 'square', name: 'Square Feed', width: 1080, height: 1080, aspectLabel: '1:1' },
-];
-
-/**
- * Renders state onto an offscreen canvas at target resolution and triggers PNG download.
- */
-export async function exportCoverPng(state, targetWidth, targetHeight, filename = 'neon-panel-cover.png') {
-  await loadAllFonts();
-  return new Promise((resolve, reject) => {
-    try {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = targetWidth;
-      offscreen.height = targetHeight;
-
-      // Temporarily override canvas dimensions in state
-      const origW = state.canvasWidth;
-      const origH = state.canvasHeight;
-      state.canvasWidth = targetWidth;
-      state.canvasHeight = targetHeight;
-
-      renderCoverArt(offscreen, state, { preview: false });
-
-      state.canvasWidth = origW;
-      state.canvasHeight = origH;
-
-      offscreen.toBlob(blob => {
-        if (!blob) {
-          reject(new Error('Canvas toBlob failed'));
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        resolve({ blob, width: targetWidth, height: targetHeight });
-      }, 'image/png');
-    } catch (err) {
-      reject(err);
-    }
-  });
+export async function ensureFonts() {
+  const loads = FONTS.map((f) =>
+    document.fonts.load(`${f.weight || 400} 72px "${f.family}"`).catch(() => null),
+  );
+  await Promise.all(loads);
+  await document.fonts.ready;
 }
 
-/**
- * Generates an offscreen canvas rendered at target dimensions (no download).
- */
-export function renderToOffscreenCanvas(state, width, height) {
-  const offscreen = document.createElement('canvas');
-  offscreen.width = width;
-  offscreen.height = height;
-
-  const origW = state.canvasWidth;
-  const origH = state.canvasHeight;
-  state.canvasWidth = width;
-  state.canvasHeight = height;
-
-  renderCoverArt(offscreen, state, { preview: false });
-
-  state.canvasWidth = origW;
-  state.canvasHeight = origH;
-
-  return offscreen;
+export async function exportPoster(state, { library, width, height, filename }) {
+  await ensureFonts();
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  renderPoster(canvas, state, { library, forExport: true });
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('The poster could not be encoded.'))), 'image/png');
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || `neon-panel-${width}x${height}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  return blob;
 }

@@ -1,180 +1,170 @@
-// Cinematic color grading presets for Neon Panel v2.
-// Golden Hour, Neon Night, Magenta Dusk, Neon Haze, Pastel Deco.
+// Per-pixel colour grades. Each preset mixes contrast, saturation, split toning and a vignette over the source
+// pixels by an intensity in 0..1, so the original photograph always remains part of the result.
 
-export const COLOR_PRESETS = [
+export const PRESETS = [
   {
-    id: 'golden-hour',
+    key: 'golden',
     name: 'Golden Hour',
-    badge: '☀️',
-    cssFilter: 'contrast(1.18) saturate(1.30) brightness(1.04)',
-    poster: {
-      titleStops: ['#fff3d8', '#ffb15a', '#ff704d', '#ff3d8b'],
-      titleGlow: 'rgba(255, 91, 83, .88)',
-      subtitleColor: '#ff73b7',
-      bandStops: ['#241326', '#45202f', '#87402f', '#a34c32'],
-      sunColors: ['rgba(255, 190, 103, .32)', 'rgba(255, 82, 119, .18)'],
-      footerStops: ['#351a32', '#85364a', '#a84a3c'],
-      accentColor: '#ffbd70',
-      lineColor: 'rgba(255, 181, 123, .62)',
-      glowColor: 'rgba(255, 128, 68, .3)',
-      vignetteColor: 'rgba(39, 9, 23, .82)',
+    colors: ['#f7bd68', '#ff8a5c'],
+    params: {
+      contrast: 1.12,
+      saturation: 1.18,
+      lift: 0.015,
+      shadows: [58, 16, 50],
+      highlights: [255, 170, 96],
+      shadowMix: 0.2,
+      highlightMix: 0.24,
+      tint: [1.07, 0.99, 0.91],
+      vignette: 0.3,
     },
-    stops: [
-      { pos: 0.0, color: 'rgba(255, 230, 120, 0.42)' },
-      { pos: 0.45, color: 'rgba(255, 140, 50, 0.48)' },
-      { pos: 1.0, color: 'rgba(80, 20, 10, 0.72)' },
-    ],
-    blendMode: 'overlay',
   },
   {
-    id: 'neon-night',
+    key: 'neon',
     name: 'Neon Night',
-    badge: '⚡',
-    cssFilter: 'contrast(1.25) saturate(1.42) brightness(0.96)',
-    poster: {
-      titleStops: ['#ffffff', '#b5ffff', '#35dcff', '#ff3bab'],
-      titleGlow: 'rgba(31, 228, 255, .95)',
-      subtitleColor: '#68f3ff',
-      bandStops: ['#071422', '#0b2637', '#133744', '#16182f'],
-      sunColors: ['rgba(32, 229, 255, .25)', 'rgba(255, 54, 177, .17)'],
-      footerStops: ['#0c2537', '#16495b', '#342149'],
-      accentColor: '#79f2ff',
-      lineColor: 'rgba(74, 226, 246, .62)',
-      glowColor: 'rgba(18, 216, 255, .32)',
-      vignetteColor: 'rgba(3, 18, 34, .84)',
+    colors: ['#3f7bff', '#ff4fd8'],
+    params: {
+      contrast: 1.2,
+      saturation: 1.12,
+      lift: 0,
+      shadows: [18, 44, 92],
+      highlights: [112, 244, 235],
+      shadowMix: 0.3,
+      highlightMix: 0.22,
+      tint: [0.9, 1.02, 1.12],
+      vignette: 0.42,
     },
-    stops: [
-      { pos: 0.0, color: 'rgba(0, 220, 255, 0.50)' },
-      { pos: 0.5, color: 'rgba(255, 0, 128, 0.52)' },
-      { pos: 1.0, color: 'rgba(10, 6, 40, 0.88)' },
-    ],
-    blendMode: 'overlay',
   },
   {
-    id: 'magenta-dusk',
+    key: 'magenta',
     name: 'Magenta Dusk',
-    badge: '🌆',
-    cssFilter: 'contrast(1.20) saturate(1.32) brightness(1.0)',
-    poster: {
-      titleStops: ['#fff0de', '#ffc49e', '#f775b6', '#bc39c1'],
-      titleGlow: 'rgba(241, 74, 193, .9)',
-      subtitleColor: '#ff8bdf',
-      bandStops: ['#190f2d', '#35143c', '#57205b', '#31183f'],
-      sunColors: ['rgba(255, 153, 175, .25)', 'rgba(158, 68, 229, .2)'],
-      footerStops: ['#211236', '#552458', '#74345d'],
-      accentColor: '#ffb0ca',
-      lineColor: 'rgba(223, 128, 219, .62)',
-      glowColor: 'rgba(211, 52, 200, .3)',
-      vignetteColor: 'rgba(28, 8, 41, .84)',
+    colors: ['#ff5b9c', '#8a5cff'],
+    params: {
+      contrast: 1.14,
+      saturation: 1.2,
+      lift: 0.008,
+      shadows: [92, 18, 104],
+      highlights: [255, 112, 190],
+      shadowMix: 0.28,
+      highlightMix: 0.26,
+      tint: [1.09, 0.93, 1.07],
+      vignette: 0.36,
     },
-    stops: [
-      { pos: 0.0, color: 'rgba(255, 200, 100, 0.40)' },
-      { pos: 0.45, color: 'rgba(255, 60, 130, 0.48)' },
-      { pos: 1.0, color: 'rgba(30, 10, 60, 0.82)' },
-    ],
-    blendMode: 'overlay',
   },
   {
-    id: 'neon-haze',
+    key: 'haze',
     name: 'Neon Haze',
-    badge: '🔥',
-    cssFilter: 'contrast(1.22) saturate(1.38) brightness(1.06)',
-    poster: {
-      titleStops: ['#fff7d9', '#ffd17c', '#ff986b', '#e25d74'],
-      titleGlow: 'rgba(255, 177, 108, .78)',
-      subtitleColor: '#a8edf0',
-      bandStops: ['#182c35', '#32505a', '#72514d', '#8e493f'],
-      sunColors: ['rgba(255, 214, 137, .28)', 'rgba(97, 215, 220, .16)'],
-      footerStops: ['#24434b', '#80604f', '#934b45'],
-      accentColor: '#ffe092',
-      lineColor: 'rgba(255, 212, 150, .62)',
-      glowColor: 'rgba(255, 168, 91, .28)',
-      vignetteColor: 'rgba(30, 36, 36, .76)',
+    colors: ['#ff7ac8', '#66e4eb'],
+    params: {
+      contrast: 0.98,
+      saturation: 1.08,
+      lift: 0.075,
+      shadows: [128, 32, 118],
+      highlights: [116, 242, 235],
+      shadowMix: 0.3,
+      highlightMix: 0.3,
+      tint: [1.07, 1.0, 1.08],
+      vignette: 0.18,
     },
-    stops: [
-      { pos: 0.0, color: 'rgba(255, 245, 200, 0.40)' },
-      { pos: 0.48, color: 'rgba(255, 170, 50, 0.44)' },
-      { pos: 1.0, color: 'rgba(50, 22, 8, 0.78)' },
-    ],
-    blendMode: 'overlay',
   },
   {
-    id: 'pastel-deco',
+    key: 'pastel',
     name: 'Pastel Deco',
-    badge: '🌴',
-    cssFilter: 'contrast(1.12) saturate(1.15) brightness(1.08)',
-    poster: {
-      titleStops: ['#fff7ed', '#ffd5b5', '#a9eadb', '#c4a4ff'],
-      titleGlow: 'rgba(103, 226, 224, .78)',
-      subtitleColor: '#ffadd4',
-      bandStops: ['#172937', '#254554', '#4b536b', '#5e4169'],
-      sunColors: ['rgba(255, 200, 176, .25)', 'rgba(146, 157, 255, .18)'],
-      footerStops: ['#223c4d', '#506071', '#654766'],
-      accentColor: '#ffcee4',
-      lineColor: 'rgba(171, 224, 225, .64)',
-      glowColor: 'rgba(139, 223, 226, .25)',
-      vignetteColor: 'rgba(11, 25, 42, .78)',
+    colors: ['#f3b6c8', '#bfe8e0'],
+    params: {
+      contrast: 0.92,
+      saturation: 0.78,
+      lift: 0.1,
+      shadows: [124, 112, 164],
+      highlights: [255, 212, 220],
+      shadowMix: 0.22,
+      highlightMix: 0.28,
+      tint: [1.03, 1.0, 1.02],
+      vignette: 0.12,
     },
-    stops: [
-      { pos: 0.0, color: 'rgba(255, 220, 240, 0.35)' },
-      { pos: 0.5, color: 'rgba(180, 230, 255, 0.30)' },
-      { pos: 1.0, color: 'rgba(255, 240, 210, 0.28)' },
-    ],
-    blendMode: 'soft-light',
   },
 ];
 
-export function getColorPreset(presetId) {
-  const id = presetId === 'noon-haze' ? 'neon-haze' : presetId;
-  return COLOR_PRESETS.find(preset => preset.id === id) || COLOR_PRESETS[0];
+const BY_KEY = new Map(PRESETS.map((p) => [p.key, p]));
+export const PRESET_KEYS = new Set(PRESETS.map((p) => p.key));
+
+export const PRESET_ALIASES = {
+  'golden-hour': 'golden',
+  'neon-night': 'neon',
+  'magenta-dusk': 'magenta',
+  'neon-haze': 'haze',
+  'pastel-deco': 'pastel',
+};
+
+export function normalizePreset(key) {
+  if (!key) return null;
+  if (PRESET_KEYS.has(key)) return key;
+  return PRESET_ALIASES[key] ?? null;
 }
 
-/**
- * Applies the selected color grade wash over a panel region.
- * Includes per-panel vignette, fine grain and halftone texture.
- */
-export function applyColorGrade(ctx, presetId, intensity, width, height, x = 0, y = 0) {
-  if (intensity <= 0.01) return;
-  const preset = getColorPreset(presetId);
+export function presetInfo(key) {
+  return BY_KEY.get(key) ?? PRESETS[0];
+}
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(x, y, width, height);
-  ctx.clip();
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 
-  // 1. Main colour wash
-  const grad = ctx.createLinearGradient(x, y, x, y + height);
-  for (const stop of preset.stops) {
-    grad.addColorStop(stop.pos, stop.color);
+/** Grades one ImageData in place. */
+export function gradeImageData(data, width, height, presetKey, intensity) {
+  const t = clamp(intensity, 0, 1);
+  if (t <= 0) return;
+  const p = presetInfo(presetKey).params;
+  const px = data.data;
+  const sr = p.shadows[0] / 255 - 0.5;
+  const sg = p.shadows[1] / 255 - 0.5;
+  const sb = p.shadows[2] / 255 - 0.5;
+  const hr = p.highlights[0] / 255 - 0.5;
+  const hg = p.highlights[1] / 255 - 0.5;
+  const hb = p.highlights[2] / 255 - 0.5;
+  let i = 0;
+  for (let y = 0; y < height; y++) {
+    const ny = (y / height - 0.5) * 2;
+    const ny2 = ny * ny;
+    for (let x = 0; x < width; x++) {
+      const nx = (x / width - 0.5) * 2;
+      const or = px[i] / 255;
+      const og = px[i + 1] / 255;
+      const ob = px[i + 2] / 255;
+      let l = or * 0.2126 + og * 0.7152 + ob * 0.0722;
+
+      let r = (or - 0.5) * p.contrast + 0.5 + p.lift;
+      let g = (og - 0.5) * p.contrast + 0.5 + p.lift;
+      let b = (ob - 0.5) * p.contrast + 0.5 + p.lift;
+
+      r = l + (r - l) * p.saturation;
+      g = l + (g - l) * p.saturation;
+      b = l + (b - l) * p.saturation;
+
+      const shadow = (1 - l) * (1 - l) * p.shadowMix;
+      const highlight = l * l * p.highlightMix;
+      r += sr * shadow + hr * highlight;
+      g += sg * shadow + hg * highlight;
+      b += sb * shadow + hb * highlight;
+
+      r *= p.tint[0];
+      g *= p.tint[1];
+      b *= p.tint[2];
+
+      const vignette = 1 - p.vignette * Math.min(1, (nx * nx + ny2) * 0.55);
+      r *= vignette;
+      g *= vignette;
+      b *= vignette;
+
+      px[i] = clamp((or + (r - or) * t) * 255, 0, 255);
+      px[i + 1] = clamp((og + (g - og) * t) * 255, 0, 255);
+      px[i + 2] = clamp((ob + (b - ob) * t) * 255, 0, 255);
+      i += 4;
+    }
   }
-  ctx.globalAlpha = Math.min(1.0, Math.max(0.0, intensity));
-  ctx.globalCompositeOperation = preset.blendMode || 'overlay';
-  ctx.fillStyle = grad;
-  ctx.fillRect(x, y, width, height);
+}
 
-  // 2. Warm radial glow in lower region (keeps skin warm)
-  const warmGlow = ctx.createRadialGradient(
-    x + width * 0.5, y + height * 0.75, width * 0.08,
-    x + width * 0.5, y + height * 0.75, width * 0.7
-  );
-  warmGlow.addColorStop(0, preset.poster?.glowColor || 'rgba(255, 100, 60, 0.30)');
-  warmGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  ctx.globalCompositeOperation = 'soft-light';
-  ctx.globalAlpha = intensity * 0.5;
-  ctx.fillStyle = warmGlow;
-  ctx.fillRect(x, y, width, height);
-
-  // 3. Per-panel gentle vignette
-  const vig = ctx.createRadialGradient(
-    x + width * 0.5, y + height * 0.5, Math.min(width, height) * 0.35,
-    x + width * 0.5, y + height * 0.5, Math.max(width, height) * 0.72
-  );
-  vig.addColorStop(0, 'rgba(0,0,0,0)');
-  vig.addColorStop(1, 'rgba(0,0,0,0.30)');
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.globalAlpha = intensity * 0.6;
-  ctx.fillStyle = vig;
-  ctx.fillRect(x, y, width, height);
-
-  ctx.restore();
+/** Grades a whole canvas in place. */
+export function applyGrade(ctx, width, height, presetKey, intensity) {
+  if (intensity <= 0) return;
+  const data = ctx.getImageData(0, 0, width, height);
+  gradeImageData(data, width, height, presetKey, intensity);
+  ctx.putImageData(data, 0, 0);
 }

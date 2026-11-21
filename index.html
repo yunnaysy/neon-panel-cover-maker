@@ -1,238 +1,296 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#100d18">
-  <title>Neon Panel — Cover Art Studio</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23100d18'/%3E%3Cpath d='M10 48 30 12 54 48Z' fill='%23ff839f'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#100d18">
+<title>Neon Panel — Coast Sunset Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5b9c'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
 </head>
-<body data-mobile-tab="photos">
-  <div class="studio-container" id="studio">
-    <aside class="sidebar sidebar-left" aria-label="Photo library">
-      <header class="app-header" id="brand-header">
-        <div class="brand-row"><span class="brand-mark">NP</span><span class="logo-badge">NEON PANEL</span></div>
-        <p class="app-tagline">Build a city after dark.</p>
-        <span class="version-tag">STUDIO 02 <i></i> OFFLINE</span>
-      </header>
-
-      <section class="control-group photo-library" id="photo-library" data-mobile-tab="photos">
-        <div class="section-heading">
-          <div><span class="step-index">01</span><span class="group-title">Your photo cast</span></div>
-          <span class="library-count">9 IMAGES</span>
-        </div>
-        <div class="upload-dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choose or drop a photo">
-          <input type="file" id="photo-input" accept="image/*" class="sr-only">
-          <span class="upload-symbol">+</span>
-          <span class="dropzone-copy"><strong>Drop a photo here</strong><small>Browse · JPG / PNG / WebP</small></span>
-          <span class="upload-arrow">↗</span>
-        </div>
-        <button type="button" class="btn btn-cast" id="btn-load-cast">
-          <span class="cast-icon">✦</span><span><strong>Load sample cast</strong><small>Fill every panel with a different scene</small></span><span class="button-arrow">→</span>
-        </button>
-        <div class="sample-grid" id="sample-grid" aria-label="Sample photo library"></div>
-        <p class="micro-hint">Click a thumbnail or drag it onto a panel.</p>
-      </section>
-
-      <div class="library-note" id="library-note" data-mobile-tab="photos"><span class="privacy-dot"></span> Photos stay on this device. Nothing is uploaded.</div>
-    </aside>
-
-    <main class="preview-area" id="preview-area">
-      <div class="mobile-topbar" id="mobile-topbar">
-        <div class="mobile-brand-block">
-          <div class="brand-row compact"><span class="brand-mark">NP</span><span class="logo-badge">NEON PANEL</span></div>
-          <p class="app-tagline">Build a city after dark.</p>
-          <span class="version-tag">STUDIO 02 <i></i> OFFLINE</span>
-        </div>
-        <button type="button" class="btn btn-export-quick" id="btn-export-mobile">Export PNG <b>↗</b></button>
-      </div>
-
-      <div class="preview-head">
-        <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="preview-title">NEON LIGHTS</strong></div>
-        <div class="preview-actions">
-          <span class="preview-ratio" id="preview-ratio">16:9 <i></i> 1920 × 1080</span>
-          <button type="button" class="btn icon-btn" id="btn-undo" aria-label="Undo" title="Undo (Ctrl/Cmd+Z)">↶</button>
-          <button type="button" class="btn icon-btn" id="btn-redo" aria-label="Redo" title="Redo (Shift+Ctrl/Cmd+Z)">↷</button>
-          <button type="button" class="btn btn-export-quick" id="btn-export-preview">Export PNG <b>↗</b></button>
-        </div>
-      </div>
-
-      <div class="mobile-preview-head" id="mobile-preview-head">
-        <div><span class="eyebrow">LIVE COMPOSITION</span><strong id="mobile-preview-title">NEON LIGHTS</strong></div>
-        <div class="mobile-history">
-          <button type="button" class="btn icon-btn" id="btn-undo-mobile" aria-label="Undo" title="Undo (Ctrl/Cmd+Z)">↶</button>
-          <button type="button" class="btn icon-btn" id="btn-redo-mobile" aria-label="Redo" title="Redo (Shift+Ctrl/Cmd+Z)">↷</button>
-        </div>
-      </div>
-
-      <div class="canvas-wrapper" id="canvas-wrapper">
-        <canvas id="cover-canvas" width="1920" height="1080" aria-label="Live cover art preview"></canvas>
-      </div>
-      <div class="preview-foot"><span><i class="live-dot"></i> LIVE PREVIEW</span><span>DRAG TO REFRAME <b>·</b> SCROLL TO ZOOM</span><span class="preview-credit">MADE WITH NEON PANEL</span></div>
-    </main>
-
-    <aside class="sidebar sidebar-right" aria-label="Cover design controls">
-      <header class="right-head">
-        <span class="eyebrow">ART DIRECTION</span>
-        <span class="autosave"><i></i> READY</span>
-      </header>
-
-      <section class="control-group" id="composition-group" data-mobile-tab="layout">
-        <div class="section-heading"><div><span class="step-index">02</span><span class="group-title">Composition</span></div></div>
-        <div class="control-label">LAYOUT</div>
-        <div class="layout-grid" id="layout-picker" role="radiogroup" aria-label="Cover layout"></div>
-        <div class="control-label aspect-label">EXPORT FORMAT</div>
-        <div class="aspect-row" id="aspect-picker">
-          <button type="button" class="btn btn-chip active" data-aspect="16:9" data-w="1920" data-h="1080"><strong>16:9</strong><small>LANDSCAPE</small></button>
-          <button type="button" class="btn btn-chip" data-aspect="4:5" data-w="1080" data-h="1350"><strong>4:5</strong><small>PORTRAIT</small></button>
-          <button type="button" class="btn btn-chip" data-aspect="1:1" data-w="1080" data-h="1080"><strong>1:1</strong><small>SQUARE</small></button>
-        </div>
-      </section>
-
-      <section class="control-group" id="grade-group" data-mobile-tab="colour">
-        <div class="section-heading"><div><span class="step-index">03</span><span class="group-title">Color grade</span></div><span class="grade-value" id="grade-val">75%</span></div>
-        <div class="segmented scope-switch" id="grade-scope" role="group" aria-label="Color grade scope">
-          <button type="button" class="btn seg-btn active" data-scope="global">Entire poster</button>
-          <button type="button" class="btn seg-btn" data-scope="panel">Selected panel</button>
-        </div>
-        <div class="panel-scope-bar" id="panel-scope-bar">
-          <button type="button" class="btn panel-nav" id="panel-prev" aria-label="Previous panel">‹</button>
-          <span class="panel-scope-label" id="panel-scope-label">PANEL 01</span>
-          <button type="button" class="btn panel-nav" id="panel-next" aria-label="Next panel">›</button>
-          <span class="scope-hint" id="grade-scope-hint">Entire poster</span>
-        </div>
-        <div class="preset-grid" id="preset-picker"></div>
-        <div class="slider-row grade-slider">
-          <label class="slider-label" for="grade-intensity">Intensity</label>
-          <input type="range" id="grade-intensity" min="0" max="1" step="0.05" value="0.75">
-        </div>
-        <div class="reset-row">
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-reset-strength">Reset strength</button>
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-remove-panel-look">Remove panel look</button>
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-reset-colour">Reset all colour</button>
-        </div>
-      </section>
-
-      <section class="control-group lettering-group" id="lettering-group" data-mobile-tab="type">
-        <div class="section-heading"><div><span class="step-index">04</span><span class="group-title">Poster lettering</span></div><span class="type-mark">Aa</span></div>
-        <div class="field-grid">
-          <div class="field-item title-field"><label for="title-input">MAIN TITLE</label><input type="text" id="title-input" maxlength="44" value="NEON LIGHTS" placeholder="Your title"></div>
-          <div class="field-item"><label for="subtitle-input">SCRIPT SUBTITLE</label><input type="text" id="subtitle-input" maxlength="40" value="Ocean Drive" placeholder="A short subtitle"></div>
-          <div class="field-item"><label for="quote-input">STAR-RATING QUOTE</label><input type="text" id="quote-input" maxlength="46" value="★★★★★  “A CLASSIC”" placeholder="A short quote"></div>
-          <div class="field-item compact-fields">
-            <label for="badge-input">SEAL</label><input type="text" id="badge-input" maxlength="18" value="ORIGINAL" placeholder="ORIGINAL">
-            <label for="tagline-input">FOOTER TAGLINE</label><input type="text" id="tagline-input" maxlength="50" value="ONE COAST · NO RULES · COMING SOON" placeholder="Footer line">
-          </div>
-        </div>
-      </section>
-
-      <section class="control-group lettering-size-group" id="lettering-size-group" data-mobile-tab="type">
-        <div class="section-heading"><div><span class="step-index">05</span><span class="group-title">Lettering size &amp; position</span></div><span class="type-mark">Aa</span></div>
-
-        <div class="control-label">LETTERING PLACEMENT</div>
-        <div class="segmented placement-switch" id="placement-switch" role="group" aria-label="Lettering placement">
-          <button type="button" class="btn seg-btn active" data-placement="below">Lettering below photos</button>
-          <button type="button" class="btn seg-btn" data-placement="over">Lettering over photos</button>
-        </div>
-
-        <div class="control-label">LETTERING TEMPLATES</div>
-        <div class="template-cards" id="template-cards" aria-label="Lettering templates"></div>
-
-        <div class="control-label">TEXT LAYER</div>
-        <div class="segmented layer-tabs" id="layer-tabs" role="group" aria-label="Selected text layer">
-          <button type="button" class="btn seg-btn active" data-layer="title">Title</button>
-          <button type="button" class="btn seg-btn" data-layer="subtitle">Subtitle</button>
-          <button type="button" class="btn seg-btn" data-layer="billing">Billing</button>
-        </div>
-
-        <div class="field-item font-field">
-          <label for="letter-font">FONT — <span id="font-layer-name">TITLE</span></label>
-          <select id="letter-font" aria-label="Font for the selected text layer"></select>
-        </div>
-
-        <div class="triple-controls">
-          <div class="mini-control">
-            <label for="letter-size-range">SIZE</label>
-            <div class="mini-inputs"><input type="range" id="letter-size-range" min="48" max="220" step="1" value="120"><input type="number" id="letter-size-number" min="48" max="220" step="1" value="120" aria-label="Title size"></div>
-          </div>
-          <div class="mini-control">
-            <label for="letter-spacing-range">SPACING</label>
-            <div class="mini-inputs"><input type="range" id="letter-spacing-range" min="-5" max="20" step="0.5" value="0"><input type="number" id="letter-spacing-number" min="-5" max="20" step="0.5" value="0" aria-label="Title letter spacing"></div>
-          </div>
-          <div class="mini-control">
-            <label for="letter-lineheight-range">LINE HEIGHT</label>
-            <div class="mini-inputs"><input type="range" id="letter-lineheight-range" min="0.7" max="1.5" step="0.01" value="1"><input type="number" id="letter-lineheight-number" min="0.7" max="1.5" step="0.01" value="1" aria-label="Title line height"></div>
-          </div>
-        </div>
-
-        <div class="position-controls">
-          <div class="mini-control">
-            <label for="letter-x-range">POSITION X %</label>
-            <div class="mini-inputs"><input type="range" id="letter-x-range" min="0" max="100" step="0.5" value="5.5"><input type="number" id="letter-x-number" min="0" max="100" step="0.5" value="5.5" aria-label="Text X position"></div>
-          </div>
-          <div class="mini-control">
-            <label for="letter-y-range">POSITION Y %</label>
-            <div class="mini-inputs"><input type="range" id="letter-y-range" min="0" max="100" step="0.5" value="80.3"><input type="number" id="letter-y-number" min="0" max="100" step="0.5" value="80.3" aria-label="Text Y position"></div>
-          </div>
-          <div class="position-grid" id="position-grid" role="group" aria-label="Quick text position">
-            <button type="button" class="btn pos-btn" data-col="0" data-row="0" data-align="left" aria-label="Top left">↖</button>
-            <button type="button" class="btn pos-btn" data-col="1" data-row="0" data-align="center" aria-label="Top centre">↑</button>
-            <button type="button" class="btn pos-btn" data-col="2" data-row="0" data-align="right" aria-label="Top right">↗</button>
-            <button type="button" class="btn pos-btn" data-col="0" data-row="1" data-align="left" aria-label="Middle left">←</button>
-            <button type="button" class="btn pos-btn" data-col="1" data-row="1" data-align="center" aria-label="Centre">•</button>
-            <button type="button" class="btn pos-btn" data-col="2" data-row="1" data-align="right" aria-label="Middle right">→</button>
-            <button type="button" class="btn pos-btn" data-col="0" data-row="2" data-align="left" aria-label="Bottom left">↙</button>
-            <button type="button" class="btn pos-btn" data-col="1" data-row="2" data-align="center" aria-label="Bottom centre">↓</button>
-            <button type="button" class="btn pos-btn" data-col="2" data-row="2" data-align="right" aria-label="Bottom right">↘</button>
-          </div>
-        </div>
-
-        <div class="autofit-row">
-          <label class="check-row" for="auto-fit"><input type="checkbox" id="auto-fit" checked> Auto-fit text</label>
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-reset-layer">Reset this layer</button>
-        </div>
-        <p id="overflow-warning" class="overflow-warning" role="status" hidden>Too wide — reduce the size or turn Auto-fit on.</p>
-      </section>
-
-      <section class="control-group crop-group" id="crop-group" data-mobile-tab="layout">
-        <div class="section-heading">
-          <div><span class="step-index">06</span><span class="group-title" id="panel-editor-title">Active panel (P1)</span></div>
-          <span class="badge" id="active-panel-indicator">P1</span>
-        </div>
-        <div class="panel-pills" id="panel-pills-container"></div>
-        <div class="slider-row"><label class="slider-label" for="zoom-slider">Zoom</label><input type="range" id="zoom-slider" min="1" max="3" step="0.05" value="1"><span class="slider-val" id="zoom-val">1.0x</span></div>
-        <div class="slider-row"><label class="slider-label" for="pan-x-slider">Pan X</label><input type="range" id="pan-x-slider" min="-1" max="1" step="0.05" value="0"><span class="slider-val" id="pan-x-val">0.00</span></div>
-        <div class="slider-row"><label class="slider-label" for="pan-y-slider">Pan Y</label><input type="range" id="pan-y-slider" min="-1" max="1" step="0.05" value="0"><span class="slider-val" id="pan-y-val">0.00</span></div>
-        <div class="button-row crop-actions">
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-fill-all">Use photo in every panel</button>
-          <button type="button" class="btn btn-quiet btn-sm" id="btn-reset-crop">Reset crop</button>
-        </div>
-      </section>
-
-      <section class="control-group export-section" id="export-group" data-mobile-tab="export">
-        <div class="section-heading"><div><span class="step-index">07</span><span class="group-title">Export cover</span></div><span class="png-chip">PNG</span></div>
-        <div class="export-buttons">
-          <button type="button" class="btn btn-export" id="export-landscape" data-w="1920" data-h="1080"><span><strong>1920 × 1080</strong><small>Landscape · 16:9</small></span><b>↗</b></button>
-          <button type="button" class="btn btn-export" id="export-portrait" data-w="1080" data-h="1350"><span><strong>1080 × 1350</strong><small>Portrait · 4:5</small></span><b>↗</b></button>
-          <button type="button" class="btn btn-export" id="export-square" data-w="1080" data-h="1080"><span><strong>1080 × 1080</strong><small>Square · 1:1</small></span><b>↗</b></button>
-        </div>
-        <p id="export-status" class="export-status" role="status" aria-live="polite">Ready to make your cover.</p>
-      </section>
-    </aside>
-
-    <div class="mobile-sheet" id="mobile-sheet" aria-label="Design controls">
-      <button type="button" class="sheet-handle" id="sheet-handle" aria-label="Resize control sheet"><span></span></button>
-      <div class="sheet-tabs" id="sheet-tabs" role="tablist" aria-label="Control sections">
-        <button type="button" class="sheet-tab active" data-tab="photos" role="tab">Photos</button>
-        <button type="button" class="sheet-tab" data-tab="layout" role="tab">Layout</button>
-        <button type="button" class="sheet-tab" data-tab="type" role="tab">Type</button>
-        <button type="button" class="sheet-tab" data-tab="colour" role="tab">Colour</button>
-        <button type="button" class="sheet-tab" data-tab="export" role="tab">Export</button>
-      </div>
-      <div class="sheet-body" id="sheet-body"></div>
+<body>
+<div class="mobile-top" id="mobileTop">
+  <div class="mobile-brand">
+    <span class="brand-badge" aria-hidden="true">NP</span>
+    <div class="mobile-brand-text">
+      <span class="wordmark small">NEON PANEL</span>
+      <span class="tagline">Build a city after dark.</span>
+      <span class="studio-line"><span class="dot"></span>STUDIO 02 • OFFLINE</span>
     </div>
   </div>
-  <script type="module" src="./src/main.js"></script>
+  <button class="export-pill" id="mobileExport" type="button">Export PNG ↗</button>
+</div>
+
+<div class="mobile-stagehead" id="mobileStageHead">
+  <div class="mobile-stage-title">
+    <span class="label">LIVE COMPOSITION</span>
+    <span class="stage-title" id="mobileCurrentTitle">NEON LIGHTS</span>
+  </div>
+  <div class="mobile-tools">
+    <span class="meta" id="mobileAspectMeta">16:9 • 1920 × 1080</span>
+    <button class="ghost" id="mobileUndo" type="button" aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
+    <button class="ghost" id="mobileRedo" type="button" aria-label="Redo" title="Redo (Shift+Ctrl+Z)">↷</button>
+  </div>
+</div>
+
+<div class="studio" id="studio">
+  <aside class="left" aria-label="Photo cast">
+    <div class="brand">
+      <span class="brand-badge" aria-hidden="true">NP</span>
+      <span class="wordmark">NEON PANEL</span>
+      <span class="tagline">Build a city after dark.</span>
+      <span class="studio-line"><span class="dot"></span>STUDIO 02 • OFFLINE</span>
+    </div>
+
+    <section class="card photos-card" id="photosCard">
+      <div class="card-head">
+        <h2><span class="num">01</span> Your photo cast</h2>
+        <span class="counter" id="imageCount">9 IMAGES</span>
+      </div>
+      <div class="drop-zone" id="dropZone">
+        <span class="drop-icon" aria-hidden="true">＋</span>
+        <span class="drop-title">Drop a photo here</span>
+        <span class="drop-sub">Browse · JPG / PNG / WebP</span>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Add photos">
+      </div>
+      <button class="primary load-cast" id="loadCast" type="button">
+        <span>Load sample cast</span>
+        <small>Fill every panel with a different scene</small>
+      </button>
+      <div class="sample-grid" id="sampleGrid" aria-label="Sample photos"></div>
+      <p class="hint">Click a thumbnail or drag it onto a panel.</p>
+    </section>
+
+    <p class="privacy" id="privacyNote"><span class="dot"></span>Photos stay on this device. Nothing is uploaded.</p>
+  </aside>
+
+  <main class="center">
+    <header class="stage-head">
+      <div class="stage-title-wrap">
+        <span class="label">LIVE COMPOSITION</span>
+        <span class="stage-title" id="currentTitle">NEON LIGHTS</span>
+      </div>
+      <div class="stage-tools">
+        <span class="meta" id="aspectMeta">16:9 • 1920 × 1080</span>
+        <button class="ghost" id="undo" type="button" aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
+        <button class="ghost" id="redo" type="button" aria-label="Redo" title="Redo (Shift+Ctrl+Z)">↷</button>
+        <button class="export-pill" id="exportPng" type="button">Export PNG ↗</button>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <canvas id="poster" width="1600" height="900" aria-label="Neon Panel poster preview"></canvas>
+    </div>
+
+    <div class="stage-caption">
+      <span><span class="dot live"></span>LIVE PREVIEW</span>
+      <span>DRAG TO REFRAME · SCROLL TO ZOOM</span>
+      <span>MADE WITH NEON PANEL</span>
+    </div>
+  </main>
+
+  <aside class="right" id="rightPanel" aria-label="Art direction">
+    <div class="right-head">
+      <span class="label">ART DIRECTION</span>
+      <span class="ready"><span class="dot"></span>READY</span>
+    </div>
+
+    <section class="card" id="compositionCard">
+      <div class="card-head">
+        <h2><span class="num">02</span> Composition</h2>
+      </div>
+      <p class="mini-label">LAYOUT</p>
+      <div class="layout-tiles" id="layoutTiles"></div>
+      <p class="mini-label">EXPORT FORMAT</p>
+      <div class="format-tiles" id="formatTiles"></div>
+    </section>
+
+    <section class="card" id="gradeCard">
+      <div class="card-head">
+        <h2><span class="num">03</span> Color grade</h2>
+      </div>
+      <div class="scope-switch" role="group" aria-label="Color grade scope">
+        <button id="scopeAll" type="button" class="active">Entire poster</button>
+        <button id="scopePanel" type="button">Selected panel</button>
+      </div>
+      <div class="panel-picker">
+        <button class="round-arrow" id="panelPrev" type="button" aria-label="Previous panel">‹</button>
+        <span class="panel-name" id="panelPickerLabel">PANEL 01</span>
+        <button class="round-arrow" id="panelNext" type="button" aria-label="Next panel">›</button>
+      </div>
+      <div class="preset-chips" id="presetChips"></div>
+      <div class="slider-row">
+        <label for="intensity">Intensity</label>
+        <output id="intensityValue">75%</output>
+      </div>
+      <input id="intensity" class="range" type="range" min="0" max="100" step="1" value="75" aria-label="Grade intensity">
+      <div class="button-row">
+        <button id="resetStrength" class="small-btn" type="button">Reset strength</button>
+        <button id="removePanelLook" class="small-btn" type="button">Remove panel look</button>
+      </div>
+      <button id="resetAllColour" class="wide-btn" type="button">Reset all colour</button>
+    </section>
+
+    <section class="card" id="letteringCard">
+      <div class="card-head">
+        <h2><span class="num">04</span> Poster lettering</h2>
+        <span class="aa-mark" aria-hidden="true">Aa</span>
+      </div>
+      <label class="field">
+        <span class="mini-label">MAIN TITLE</span>
+        <input id="titleInput" type="text" maxlength="64" value="NEON LIGHTS" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="mini-label">SCRIPT SUBTITLE</span>
+        <input id="subtitleInput" type="text" maxlength="64" value="Ocean Drive" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="mini-label">STAR-RATING QUOTE</span>
+        <input id="quoteInput" type="text" maxlength="72" value="★★★★★  &quot;A CLASSIC&quot;" autocomplete="off">
+      </label>
+      <div class="field-split">
+        <label class="field">
+          <span class="mini-label">SEAL</span>
+          <input id="sealInput" type="text" maxlength="24" value="ORIGINAL" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="mini-label">FOOTER TAGLINE</span>
+          <input id="taglineInput" type="text" maxlength="72" value="ONE COAST · NO RULES · COMING SOON" autocomplete="off">
+        </label>
+      </div>
+    </section>
+
+    <section class="card" id="typeCard">
+      <div class="card-head">
+        <h2><span class="num">05</span> Lettering size &amp; position</h2>
+      </div>
+      <div class="scope-switch" role="group" aria-label="Lettering placement">
+        <button id="placementBelow" type="button" class="active">Lettering below photos</button>
+        <button id="placementOver" type="button">Lettering over photos</button>
+      </div>
+      <p class="mini-label">LETTERING TEMPLATES</p>
+      <div class="template-row" id="templateRow"></div>
+
+      <div class="layer-tabs" id="layerTabs" role="tablist" aria-label="Lettering layer">
+        <button data-layer="title" type="button" class="active" role="tab" aria-selected="true">Title</button>
+        <button data-layer="subtitle" type="button" role="tab" aria-selected="false">Subtitle</button>
+        <button data-layer="billing" type="button" role="tab" aria-selected="false">Billing</button>
+      </div>
+
+      <label class="field">
+        <span class="mini-label">FONT</span>
+        <select id="fontSelect"></select>
+      </label>
+
+      <div class="control-grid">
+        <div class="control">
+          <div class="slider-row"><label for="sizeRange">Size</label><output id="sizeValue">150</output></div>
+          <input id="sizeRange" class="range" type="range">
+          <input id="sizeNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="spacingRange">Letter spacing</label><output id="spacingValue">1</output></div>
+          <input id="spacingRange" class="range" type="range">
+          <input id="spacingNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="lineHeightRange">Line height</label><output id="lineHeightValue">0.9</output></div>
+          <input id="lineHeightRange" class="range" type="range">
+          <input id="lineHeightNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="xRange">X %</label><output id="xValue">8</output></div>
+          <input id="xRange" class="range" type="range">
+          <input id="xNumber" class="num" type="number">
+        </div>
+        <div class="control">
+          <div class="slider-row"><label for="yRange">Y %</label><output id="yValue">74</output></div>
+          <input id="yRange" class="range" type="range">
+          <input id="yNumber" class="num" type="number">
+        </div>
+      </div>
+
+      <p class="mini-label">QUICK POSITION</p>
+      <div class="quick-grid" id="quickGrid" role="group" aria-label="Quick position">
+        <button data-qx="0" data-qy="0" type="button" aria-label="Top left">↖</button>
+        <button data-qx="1" data-qy="0" type="button" aria-label="Top centre">↑</button>
+        <button data-qx="2" data-qy="0" type="button" aria-label="Top right">↗</button>
+        <button data-qx="0" data-qy="1" type="button" aria-label="Middle left">←</button>
+        <button data-qx="1" data-qy="1" type="button" aria-label="Centre">•</button>
+        <button data-qx="2" data-qy="1" type="button" aria-label="Middle right">→</button>
+        <button data-qx="0" data-qy="2" type="button" aria-label="Bottom left">↙</button>
+        <button data-qx="1" data-qy="2" type="button" aria-label="Bottom centre">↓</button>
+        <button data-qx="2" data-qy="2" type="button" aria-label="Bottom right">↘</button>
+      </div>
+
+      <label class="toggle-row">
+        <input id="autoFit" type="checkbox" checked>
+        <span>Auto-fit title</span>
+      </label>
+      <p class="warning" id="tooWide" hidden>Title is too wide — enable Auto-fit or shorten it.</p>
+      <button id="resetLayer" class="wide-btn" type="button">Reset this layer</button>
+    </section>
+
+    <section class="card" id="cropCard">
+      <div class="card-head">
+        <h2><span class="num">06</span> Crop</h2>
+        <span class="counter" id="cropPanelLabel">PANEL 01</span>
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropZoom">Zoom</label><output id="cropZoomValue">1.00×</output></div>
+        <input id="cropZoom" class="range" type="range" min="1" max="3" step="0.01" value="1">
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropX">X offset</label><output id="cropXValue">0%</output></div>
+        <input id="cropX" class="range" type="range" min="-100" max="100" step="1" value="0">
+      </div>
+      <div class="control">
+        <div class="slider-row"><label for="cropY">Y offset</label><output id="cropYValue">0%</output></div>
+        <input id="cropY" class="range" type="range" min="-100" max="100" step="1" value="0">
+      </div>
+      <button id="resetCrop" class="wide-btn" type="button">Reset crop</button>
+    </section>
+
+    <section class="card" id="exportCard">
+      <div class="card-head">
+        <h2><span class="num">07</span> Export</h2>
+      </div>
+      <div class="export-cards" id="exportCards">
+        <button class="export-card" data-w="1920" data-h="1080" type="button">
+          <strong>1920 × 1080</strong><span>16:9 landscape</span>
+        </button>
+        <button class="export-card" data-w="1080" data-h="1350" type="button">
+          <strong>1080 × 1350</strong><span>4:5 portrait</span>
+        </button>
+        <button class="export-card" data-w="1080" data-h="1080" type="button">
+          <strong>1080 × 1080</strong><span>1:1 square</span>
+        </button>
+      </div>
+      <p class="hint">Each card downloads a full-resolution PNG.</p>
+    </section>
+  </aside>
+</div>
+
+<div class="mobile-sheet" id="mobileSheet">
+  <button class="sheet-handle" id="sheetHandle" type="button" aria-label="Cycle panel height"><span></span></button>
+  <div class="sheet-tabs" id="sheetTabs" role="tablist" aria-label="Studio panels">
+    <button data-sheet-tab="photos" type="button" class="active" role="tab" aria-selected="true">Photos</button>
+    <button data-sheet-tab="layout" type="button" role="tab" aria-selected="false">Layout</button>
+    <button data-sheet-tab="type" type="button" role="tab" aria-selected="false">Type</button>
+    <button data-sheet-tab="colour" type="button" role="tab" aria-selected="false">Colour</button>
+    <button data-sheet-tab="export" type="button" role="tab" aria-selected="false">Export</button>
+  </div>
+  <div class="sheet-body" id="sheetBody">
+    <div class="sheet-panel active" data-sheet-panel="photos"></div>
+    <div class="sheet-panel" data-sheet-panel="layout"></div>
+    <div class="sheet-panel" data-sheet-panel="type"></div>
+    <div class="sheet-panel" data-sheet-panel="colour"></div>
+    <div class="sheet-panel" data-sheet-panel="export"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>
